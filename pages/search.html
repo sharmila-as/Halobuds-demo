@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Search — Halo Buds</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Great+Vibes&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/main.css">
+<style>
+.page-hero { background:linear-gradient(135deg,#f8f5ff 0%,#fdf2f8 100%); padding:2.5rem 0 1.75rem; }
+.page-hero .script-title { font-family:'Great Vibes',cursive; font-size:1.8rem; color:var(--purple-brand); display:block; text-align:center; }
+.search-bar-wrap { max-width:600px; margin:0 auto; }
+.search-bar { display:flex; gap:.75rem; background:white; border:2px solid var(--purple-brand); border-radius:100px; padding:.5rem .5rem .5rem 1.5rem; box-shadow:0 8px 30px rgba(107,63,160,.15); }
+.search-bar input { flex:1; border:none; outline:none; font-family:'Jost',sans-serif; font-size:1rem; color:var(--text-dark); background:transparent; }
+.search-bar button { padding:.65rem 1.5rem; background:var(--purple-brand); color:white; border:none; border-radius:100px; font-family:'Jost',sans-serif; font-size:.9rem; font-weight:500; cursor:pointer; transition:all .2s; }
+.search-bar button:hover { background:var(--purple-deep); }
+.search-section { padding:3rem 0; }
+.search-meta { font-family:'Jost',sans-serif; font-size:.9rem; color:var(--text-medium); margin-bottom:1.75rem; }
+.search-meta strong { color:var(--text-dark); }
+.products-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1.5rem; }
+.product-card { background:white; border-radius:16px; overflow:hidden; border:1px solid var(--border); transition:all .3s; }
+.product-card:hover { transform:translateY(-4px); box-shadow:0 12px 40px rgba(107,63,160,.12); border-color:rgba(107,63,160,.2); }
+.product-img-wrap { position:relative; aspect-ratio:4/5; overflow:hidden; background:linear-gradient(135deg,var(--purple-pale),#fce7f3); }
+.product-img-wrap img { width:100%; height:100%; object-fit:cover; transition:transform .4s; }
+.product-card:hover .product-img-wrap img { transform:scale(1.04); }
+.product-placeholder { width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:3rem; }
+.product-badge { position:absolute; top:.75rem; left:.75rem; padding:.25rem .7rem; border-radius:100px; font-family:'Jost',sans-serif; font-size:.7rem; font-weight:600; letter-spacing:.05em; }
+.badge-sale { background:#ec4899; color:white; }
+.badge-new { background:var(--purple-brand); color:white; }
+.badge-bestseller { background:#f6ad55; color:white; }
+.product-wishlist-btn { position:absolute; top:.75rem; right:.75rem; width:32px; height:32px; background:white; border:none; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:.9rem; box-shadow:0 2px 10px rgba(0,0,0,.12); transition:all .2s; }
+.product-wishlist-btn:hover { background:var(--purple-pale); transform:scale(1.1); }
+.product-info { padding:1rem; }
+.product-category { font-family:'Jost',sans-serif; font-size:.72rem; font-weight:500; letter-spacing:.08em; text-transform:uppercase; color:var(--purple-brand); margin-bottom:.3rem; }
+.product-name { font-family:'Cormorant Garamond',serif; font-size:1.05rem; font-weight:600; color:var(--text-dark); margin-bottom:.5rem; text-decoration:none; display:block; line-height:1.3; }
+.product-name:hover { color:var(--purple-brand); }
+.product-price-row { display:flex; align-items:center; gap:.5rem; }
+.product-price { font-family:'Jost',sans-serif; font-size:.95rem; font-weight:600; color:var(--purple-brand); }
+.product-original { font-family:'Jost',sans-serif; font-size:.82rem; color:var(--text-light); text-decoration:line-through; }
+.product-rating { display:flex; align-items:center; gap:.3rem; margin-top:.35rem; }
+.stars { color:#f6ad55; font-size:.75rem; }
+.rating-count { font-family:'Jost',sans-serif; font-size:.75rem; color:var(--text-light); }
+.empty-search { text-align:center; padding:5rem 2rem; }
+.empty-search .icon { font-size:4rem; margin-bottom:1rem; }
+.empty-search h2 { font-family:'Cormorant Garamond',serif; font-size:2rem; font-weight:400; color:var(--text-dark); margin-bottom:.75rem; }
+.empty-search p { font-family:'Jost',sans-serif; font-size:.95rem; color:var(--text-light); margin-bottom:2rem; }
+.suggestions { display:flex; flex-wrap:wrap; gap:.5rem; justify-content:center; margin-top:1rem; }
+.suggestion-tag { padding:.4rem 1rem; background:var(--purple-pale); color:var(--purple-brand); border-radius:100px; font-family:'Jost',sans-serif; font-size:.85rem; cursor:pointer; text-decoration:none; transition:all .2s; }
+.suggestion-tag:hover { background:var(--purple-brand); color:white; }
+@media(max-width:900px) { .products-grid { grid-template-columns:repeat(2,1fr); } }
+@media(max-width:500px) { .products-grid { grid-template-columns:1fr 1fr; gap:1rem; } }
+</style>
+</head>
+<body>
+<header class="site-header" id="siteHeader">
+  <div class="container">
+    <div class="header-inner">
+      <a href="../index.html" class="logo"><div class="logo-mark">HB</div><div class="logo-text"><span class="logo-name">Halo Buds</span><span class="logo-tagline">Fully Handmade & Customized</span></div></a>
+      <nav class="main-nav"><a href="../index.html">Home</a><a href="shop.html">Shop</a><a href="custom-order.html">Custom Order</a><a href="contact.html">Contact</a></nav>
+      <div class="header-actions">
+        <a href="cart.html" class="icon-btn"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><span class="cart-badge" id="cartCount">0</span></a>
+        <a href="account.html" class="icon-btn"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="page-hero">
+  <div class="container">
+    <span class="script-title">Explore</span>
+    <div class="search-bar-wrap" style="margin-top:.75rem">
+      <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Search for floral crowns, hair accessories, bouquets..." autofocus>
+        <button onclick="doSearch()">Search</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="search-section">
+  <div class="container">
+    <div id="searchMeta" class="search-meta"></div>
+    <div id="searchResults"></div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="container"><div class="footer-bottom"><p>© 2025 Halo Buds. All rights reserved.</p></div></div>
+</footer>
+
+<script type="module">
+import { Products, Cart, Wishlist, Utils } from '../js/config.js';
+
+const params = new URLSearchParams(location.search);
+let query = params.get('q') || '';
+
+if (query) {
+  document.getElementById('searchInput').value = query;
+  runSearch(query);
+} else {
+  showSuggestions();
+}
+
+window.doSearch = () => {
+  const q = document.getElementById('searchInput').value.trim();
+  if (!q) return;
+  history.replaceState({}, '', `?q=${encodeURIComponent(q)}`);
+  runSearch(q);
+};
+
+document.getElementById('searchInput').addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+
+async function runSearch(q) {
+  document.getElementById('searchMeta').textContent = 'Searching...';
+  document.getElementById('searchResults').innerHTML = '';
+
+  const allProducts = await Products.getAll({ limit: 100 });
+  const ql = q.toLowerCase();
+  const results = (allProducts || []).filter(p =>
+    p.name?.toLowerCase().includes(ql) ||
+    p.description?.toLowerCase().includes(ql) ||
+    p.categories?.name?.toLowerCase().includes(ql) ||
+    p.tags?.some(t => t.toLowerCase().includes(ql))
+  );
+
+  document.getElementById('searchMeta').innerHTML = results.length
+    ? `Showing <strong>${results.length}</strong> result${results.length !== 1 ? 's' : ''} for "<strong>${q}</strong>"`
+    : '';
+
+  if (!results.length) {
+    document.getElementById('searchResults').innerHTML = `
+      <div class="empty-search">
+        <div class="icon">🔍</div>
+        <h2>No results for "${q}"</h2>
+        <p>Try a different search term or browse our popular categories</p>
+        <div class="suggestions">
+          <a class="suggestion-tag" onclick="setSearch('floral crown')">Floral Crown</a>
+          <a class="suggestion-tag" onclick="setSearch('hair clip')">Hair Clip</a>
+          <a class="suggestion-tag" onclick="setSearch('bouquet')">Bouquet</a>
+          <a class="suggestion-tag" onclick="setSearch('gift')">Gift</a>
+          <a class="suggestion-tag" onclick="setSearch('wedding')">Wedding</a>
+        </div>
+      </div>`;
+    return;
+  }
+
+  document.getElementById('searchResults').innerHTML = `<div class="products-grid">${results.map(productCard).join('')}</div>`;
+}
+
+function productCard(p) {
+  const price = p.sale_price || p.price;
+  const stars = '★'.repeat(Math.round(p.rating || 5)) + '☆'.repeat(5 - Math.round(p.rating || 5));
+  return `<div class="product-card">
+    <div class="product-img-wrap">
+      ${p.sale_price ? '<span class="product-badge badge-sale">SALE</span>' : p.is_new ? '<span class="product-badge badge-new">NEW</span>' : ''}
+      ${p.images?.[0] ? `<img src="${p.images[0]}" alt="${p.name}" loading="lazy">` : '<div class="product-placeholder">🌸</div>'}
+      <button class="product-wishlist-btn" onclick="toggleWish('${p.id}',this)" title="Add to Wishlist">♡</button>
+    </div>
+    <div class="product-info">
+      <div class="product-category">${p.categories?.name || ''}</div>
+      <a href="product.html?slug=${p.slug}" class="product-name">${p.name}</a>
+      <div class="product-price-row">
+        <span class="product-price">${Utils.formatPrice(price)}</span>
+        ${p.sale_price ? `<span class="product-original">${Utils.formatPrice(p.price)}</span>` : ''}
+      </div>
+      ${p.review_count > 0 ? `<div class="product-rating"><span class="stars">${stars}</span><span class="rating-count">(${p.review_count})</span></div>` : ''}
+    </div>
+  </div>`;
+}
+
+window.toggleWish = async (id, btn) => {
+  const inWish = await Wishlist.isInWishlist(id);
+  await Wishlist.toggle(id);
+  btn.textContent = inWish ? '♡' : '♥';
+  btn.style.color = inWish ? '' : '#ec4899';
+};
+
+window.setSearch = (q) => {
+  document.getElementById('searchInput').value = q;
+  doSearch();
+};
+
+function showSuggestions() {
+  document.getElementById('searchMeta').textContent = '';
+  document.getElementById('searchResults').innerHTML = `
+    <div class="empty-search">
+      <div class="icon">🌸</div>
+      <h2>What are you looking for?</h2>
+      <p>Search our handmade collection of floral accessories and gifts</p>
+      <div class="suggestions">
+        <a class="suggestion-tag" onclick="setSearch('floral crown')">Floral Crown</a>
+        <a class="suggestion-tag" onclick="setSearch('hair clip')">Hair Clip</a>
+        <a class="suggestion-tag" onclick="setSearch('bouquet')">Bouquet</a>
+        <a class="suggestion-tag" onclick="setSearch('scrunchie')">Scrunchie</a>
+        <a class="suggestion-tag" onclick="setSearch('gift')">Gift</a>
+        <a class="suggestion-tag" onclick="setSearch('wedding')">Wedding</a>
+        <a class="suggestion-tag" onclick="setSearch('birthday')">Birthday</a>
+      </div>
+    </div>`;
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Customers — Halo Buds Admin</title>
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+<aside class="admin-sidebar">
+  <div class="sidebar-logo"><a href="index.html" class="brand"><div class="logo-mark-sm">HB</div><div><div class="sidebar-brand-text">Halo Buds</div><div class="sidebar-brand-sub">Admin Panel</div></div></a></div>
+  <nav class="admin-nav">
+    <div class="nav-section">Main</div><a href="index.html"><span class="nav-icon">📊</span> Dashboard</a><a href="orders.html"><span class="nav-icon">📦</span> Orders</a>
+    <div class="nav-section">Catalogue</div><a href="products.html"><span class="nav-icon">🛍️</span> Products</a><a href="categories.html"><span class="nav-icon">🗂️</span> Categories</a><a href="banners.html"><span class="nav-icon">🖼️</span> Banners</a>
+    <div class="nav-section">Customers</div><a href="customers.html" class="active"><span class="nav-icon">👥</span> Customers</a><a href="reviews.html"><span class="nav-icon">⭐</span> Reviews</a>
+    <div class="nav-section">Support</div><a href="messages.html"><span class="nav-icon">💬</span> Messages</a><a href="custom-requests.html"><span class="nav-icon">✏️</span> Custom Requests</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="admin-user"><div class="admin-avatar" id="adminAvatarEl">A</div><div class="admin-user-info"><div class="admin-user-name" id="adminNameEl">Admin</div><div class="admin-user-role">Administrator</div></div></div>
+    <a href="../index.html" class="view-site-link" target="_blank">🌐 View Site ↗</a>
+    <button class="btn-logout" onclick="adminSignOut()">🚪 Sign Out</button>
+  </div>
+</aside>
+
+<main class="admin-main">
+  <div class="admin-topbar">
+    <div class="topbar-title">Customers</div>
+    <div class="topbar-actions"><span id="custCount" style="font-size:.875rem;color:var(--text-light)"></span></div>
+  </div>
+  <div class="admin-content">
+    <div class="admin-card">
+      <div class="table-toolbar">
+        <div class="search-input-wrap">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input type="text" id="searchInput" placeholder="Search by name, email, phone..." oninput="filterCustomers()">
+        </div>
+        <select class="filter-select" id="sortFilter" onchange="filterCustomers()">
+          <option value="newest">Newest First</option>
+          <option value="orders">Most Orders</option>
+          <option value="spent">Highest Spend</option>
+        </select>
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>Customer</th><th>Email</th><th>Phone</th><th>Orders</th><th>Total Spent</th><th>Joined</th><th>Actions</th></tr></thead>
+          <tbody id="customersTableBody"><tr><td colspan="7" class="loading">Loading customers...</td></tr></tbody>
+        </table>
+      </div>
+      <div class="pagination"><span id="pageInfo"></span><button class="page-btn" id="prevBtn" onclick="prevPage()">‹</button><div id="pageNums" style="display:flex;gap:.25rem"></div><button class="page-btn" id="nextBtn" onclick="nextPage()">›</button></div>
+    </div>
+  </div>
+</main>
+
+<script type="module">
+import { supabase, requireAdmin, adminSignOut, formatPrice, formatDate, showToast } from './js/admin.js';
+window.adminSignOut = adminSignOut;
+
+let all=[], filtered=[], page=1;
+const PER_PAGE=20;
+
+async function init() {
+  const auth = await requireAdmin();
+  if (!auth) return;
+  const name=`${auth.profile.first_name||''} ${auth.profile.last_name||''}`.trim()||'Admin';
+  document.getElementById('adminNameEl').textContent=name;
+  document.getElementById('adminAvatarEl').textContent=name[0].toUpperCase();
+  loadCustomers();
+}
+
+async function loadCustomers() {
+  // Get profiles with order aggregates
+  const { data: profiles } = await supabase.from('profiles').select('*').order('created_at',{ascending:false});
+  // Get order stats per user
+  const { data: orderStats } = await supabase.from('orders').select('user_id,total_amount,payment_status').neq('status','cancelled');
+
+  const statsByUser = {};
+  (orderStats||[]).forEach(o => {
+    if (!o.user_id) return;
+    if (!statsByUser[o.user_id]) statsByUser[o.user_id]={count:0,spent:0};
+    statsByUser[o.user_id].count++;
+    if (o.payment_status==='paid') statsByUser[o.user_id].spent+=o.total_amount;
+  });
+
+  all = (profiles||[]).map(p => ({...p, orderCount: statsByUser[p.id]?.count||0, totalSpent: statsByUser[p.id]?.spent||0}));
+  document.getElementById('custCount').textContent = `${all.length} customers`;
+  filtered=[...all];
+  render();
+}
+
+window.filterCustomers = () => {
+  const q=document.getElementById('searchInput').value.toLowerCase();
+  const sort=document.getElementById('sortFilter').value;
+  filtered=all.filter(c=>{
+    const name=`${c.first_name||''} ${c.last_name||''}`.toLowerCase();
+    return !q||name.includes(q)||(c.phone||'').includes(q);
+  });
+  if(sort==='orders') filtered.sort((a,b)=>b.orderCount-a.orderCount);
+  else if(sort==='spent') filtered.sort((a,b)=>b.totalSpent-a.totalSpent);
+  else filtered.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+  page=1; render();
+};
+
+function render() {
+  const start=(page-1)*PER_PAGE,end=start+PER_PAGE;
+  const slice=filtered.slice(start,end);
+  const tbody=document.getElementById('customersTableBody');
+  if(!slice.length){tbody.innerHTML='<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">👥</div><h3>No customers found</h3></div></td></tr>';return;}
+  tbody.innerHTML=slice.map(c=>{
+    const name=`${c.first_name||''} ${c.last_name||''}`.trim()||'—';
+    const initial=(c.first_name?.[0]||'?').toUpperCase();
+    return `<tr>
+      <td><div class="flex-center"><div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--purple-pale),#fce7f3);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-weight:600;color:var(--purple-brand);flex-shrink:0">${initial}</div><span class="cell-bold">${name}</span></div></td>
+      <td class="text-sm">${c.email||'—'}</td>
+      <td class="text-sm">${c.phone||'—'}</td>
+      <td><span style="font-weight:600;color:var(--text-dark)">${c.orderCount}</span></td>
+      <td style="font-weight:600;color:var(--purple-brand)">${c.totalSpent?formatPrice(c.totalSpent):'—'}</td>
+      <td class="text-sm">${formatDate(c.created_at)}</td>
+      <td><a href="orders.html?customer=${c.id}" class="btn btn-secondary btn-sm">Orders</a></td>
+    </tr>`;
+  }).join('');
+  const totalPages=Math.ceil(filtered.length/PER_PAGE);
+  document.getElementById('pageInfo').textContent=`${start+1}–${Math.min(end,filtered.length)} of ${filtered.length}`;
+  document.getElementById('prevBtn').disabled=page<=1;
+  document.getElementById('nextBtn').disabled=page>=totalPages;
+  document.getElementById('pageNums').innerHTML=Array.from({length:Math.min(totalPages,5)},(_,i)=>{const p=i+1;return`<button class="page-btn${p===page?' active':''}" onclick="goPage(${p})">${p}</button>`;}).join('');
+}
+
+window.goPage=(p)=>{page=p;render();};
+window.prevPage=()=>{if(page>1){page--;render();}};
+window.nextPage=()=>{if(page<Math.ceil(filtered.length/PER_PAGE)){page++;render();}};
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Account — Halo Buds</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Great+Vibes&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/main.css">
+<style>
+.account-layout { display: grid; grid-template-columns: 280px 1fr; gap: 2rem; padding: 3rem 0; }
+.account-sidebar { }
+.account-user-card { background: white; border-radius: 20px; border: 1px solid var(--border); padding: 1.75rem; text-align: center; margin-bottom: 1rem; }
+.account-avatar { width: 72px; height: 72px; border-radius: 50%; background: linear-gradient(135deg, var(--purple-brand), #ec4899); display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-size: 2rem; color: white; margin: 0 auto 0.75rem; }
+.account-user-name { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 600; color: var(--text-dark); }
+.account-user-email { font-family: 'Jost', sans-serif; font-size: 0.82rem; color: var(--text-light); margin-top: 0.2rem; }
+.account-nav { background: white; border-radius: 20px; border: 1px solid var(--border); overflow: hidden; }
+.account-nav-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.5rem; font-family: 'Jost', sans-serif; font-size: 0.9rem; color: var(--text-medium); cursor: pointer; border-bottom: 1px solid var(--border-light); transition: all 0.2s; text-decoration: none; }
+.account-nav-item:last-child { border-bottom: none; }
+.account-nav-item:hover { background: var(--purple-pale); color: var(--purple-brand); }
+.account-nav-item.active { background: var(--purple-pale); color: var(--purple-brand); font-weight: 500; border-left: 3px solid var(--purple-brand); }
+.account-nav-item .nav-icon { width: 20px; text-align: center; }
+.account-content { }
+.account-panel { display: none; }
+.account-panel.active { display: block; }
+.panel-header { margin-bottom: 1.75rem; }
+.panel-header h2 { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 400; color: var(--text-dark); }
+.panel-header p { font-family: 'Jost', sans-serif; font-size: 0.9rem; color: var(--text-light); margin-top: 0.25rem; }
+.panel-card { background: white; border-radius: 20px; border: 1px solid var(--border); padding: 2rem; margin-bottom: 1.5rem; }
+.panel-card h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 600; color: var(--text-dark); margin-bottom: 1.25rem; }
+.profile-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.form-group { margin-bottom: 0; }
+.form-group.full { grid-column: 1/-1; }
+.form-group label { display: block; font-family: 'Jost', sans-serif; font-size: 0.78rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-medium); margin-bottom: 0.4rem; }
+.form-group input, .form-group select { width: 100%; padding: 0.8rem 1rem; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Jost', sans-serif; font-size: 0.9rem; color: var(--text-dark); background: white; transition: all 0.25s; outline: none; box-sizing: border-box; }
+.form-group input:focus, .form-group select:focus { border-color: var(--purple-brand); box-shadow: 0 0 0 3px rgba(107,63,160,0.08); }
+.btn-save { padding: 0.8rem 2rem; background: var(--purple-brand); color: white; border: none; border-radius: 10px; font-family: 'Jost', sans-serif; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: all 0.25s; margin-top: 1.25rem; }
+.btn-save:hover { background: var(--purple-deep); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(107,63,160,0.3); }
+.orders-list { }
+.order-item { background: white; border-radius: 16px; border: 1px solid var(--border); padding: 1.5rem; margin-bottom: 1rem; }
+.order-item-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+.order-num { font-family: 'Jost', sans-serif; font-size: 0.95rem; font-weight: 600; color: var(--text-dark); }
+.order-date { font-family: 'Jost', sans-serif; font-size: 0.82rem; color: var(--text-light); margin-top: 0.2rem; }
+.order-status-badge { padding: 0.3rem 0.875rem; border-radius: 100px; font-family: 'Jost', sans-serif; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.05em; }
+.status-pending { background: #fffbeb; color: #92400e; }
+.status-confirmed { background: #eff6ff; color: #1d4ed8; }
+.status-processing { background: #f5f3ff; color: #6d28d9; }
+.status-shipped { background: #ecfeff; color: #0e7490; }
+.status-delivered { background: #f0fdf4; color: #166534; }
+.status-cancelled { background: #fff5f5; color: #c53030; }
+.order-items-preview { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+.order-preview-img { width: 52px; height: 52px; border-radius: 8px; object-fit: cover; background: var(--purple-pale); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; border: 1px solid var(--border); }
+.order-item-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 0.75rem; border-top: 1px solid var(--border-light); }
+.order-total { font-family: 'Jost', sans-serif; font-size: 0.95rem; font-weight: 600; color: var(--purple-brand); }
+.order-actions { display: flex; gap: 0.5rem; }
+.btn-sm { padding: 0.45rem 1rem; border-radius: 8px; font-family: 'Jost', sans-serif; font-size: 0.8rem; font-weight: 500; cursor: pointer; text-decoration: none; border: 1.5px solid var(--purple-brand); color: var(--purple-brand); background: none; transition: all 0.2s; }
+.btn-sm:hover { background: var(--purple-brand); color: white; }
+.addresses-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.address-card { border: 1.5px solid var(--border); border-radius: 14px; padding: 1.25rem; position: relative; }
+.address-card.default { border-color: var(--purple-brand); }
+.default-badge { position: absolute; top: -1px; right: 1rem; background: var(--purple-brand); color: white; padding: 0.2rem 0.75rem; border-radius: 0 0 8px 8px; font-family: 'Jost', sans-serif; font-size: 0.72rem; font-weight: 600; }
+.address-name { font-family: 'Jost', sans-serif; font-size: 0.9rem; font-weight: 600; color: var(--text-dark); margin-bottom: 0.5rem; }
+.address-text { font-family: 'Jost', sans-serif; font-size: 0.85rem; color: var(--text-medium); line-height: 1.6; }
+.address-actions { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
+.btn-addr { padding: 0.35rem 0.875rem; border-radius: 7px; font-family: 'Jost', sans-serif; font-size: 0.78rem; cursor: pointer; border: 1.5px solid var(--border); color: var(--text-medium); background: none; transition: all 0.2s; }
+.btn-addr:hover { border-color: var(--purple-brand); color: var(--purple-brand); }
+.btn-addr.danger:hover { border-color: #e53e3e; color: #e53e3e; }
+.add-address-card { border: 1.5px dashed var(--border); border-radius: 14px; padding: 1.25rem; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; min-height: 140px; text-decoration: none; }
+.add-address-card:hover { border-color: var(--purple-brand); background: var(--purple-pale); }
+.add-address-card .plus { font-size: 2rem; color: var(--purple-brand); opacity: 0.6; }
+.add-address-card span { font-family: 'Jost', sans-serif; font-size: 0.85rem; color: var(--text-medium); margin-top: 0.5rem; }
+.wishlist-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; }
+.wishlist-item { border-radius: 14px; overflow: hidden; border: 1px solid var(--border); position: relative; }
+.wishlist-item-img { aspect-ratio: 3/4; background: linear-gradient(135deg, var(--purple-pale), #fce7f3); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; }
+.wishlist-item-img img { width: 100%; height: 100%; object-fit: cover; }
+.wishlist-item-info { padding: 0.875rem; }
+.wishlist-item-name { font-family: 'Cormorant Garamond', serif; font-size: 1rem; font-weight: 600; color: var(--text-dark); margin-bottom: 0.25rem; text-decoration: none; display: block; }
+.wishlist-item-price { font-family: 'Jost', sans-serif; font-size: 0.9rem; color: var(--purple-brand); font-weight: 600; }
+.wishlist-remove { position: absolute; top: 0.5rem; right: 0.5rem; width: 28px; height: 28px; background: white; border: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.8rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: all 0.2s; }
+.wishlist-remove:hover { background: #fff5f5; color: #e53e3e; }
+.empty-panel { text-align: center; padding: 3rem; }
+.empty-panel .empty-icon { font-size: 3rem; margin-bottom: 1rem; }
+.empty-panel h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 400; color: var(--text-dark); margin-bottom: 0.5rem; }
+.empty-panel p { font-family: 'Jost', sans-serif; font-size: 0.9rem; color: var(--text-light); margin-bottom: 1.5rem; }
+.page-hero { background: linear-gradient(135deg, #f8f5ff 0%, #fdf2f8 100%); padding: 2.5rem 0 1.5rem; }
+.page-hero .script-title { font-family: 'Great Vibes', cursive; font-size: 1.8rem; color: var(--purple-brand); display: block; }
+.page-hero h1 { font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; font-weight: 400; color: var(--text-dark); margin: 0.2rem 0; }
+.alert-toast { padding: 0.75rem 1.25rem; border-radius: 10px; font-family: 'Jost', sans-serif; font-size: 0.875rem; margin-bottom: 1rem; display: none; }
+.alert-toast.success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; display: block; }
+.alert-toast.error { background: #fff5f5; border: 1px solid #fed7d7; color: #c53030; display: block; }
+@media (max-width: 900px) {
+  .account-layout { grid-template-columns: 1fr; }
+  .profile-form-grid { grid-template-columns: 1fr; }
+  .addresses-grid { grid-template-columns: 1fr; }
+  .wishlist-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+<header class="site-header" id="siteHeader">
+  <div class="container">
+    <div class="header-inner">
+      <a href="../index.html" class="logo">
+        <div class="logo-mark">HB</div>
+        <div class="logo-text"><span class="logo-name">Halo Buds</span><span class="logo-tagline">Fully Handmade & Customized</span></div>
+      </a>
+      <nav class="main-nav">
+        <a href="../index.html">Home</a><a href="shop.html">Shop</a><a href="custom-order.html">Custom Order</a><a href="contact.html">Contact</a>
+      </nav>
+      <div class="header-actions">
+        <a href="cart.html" class="icon-btn" aria-label="Cart">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          <span class="cart-badge" id="cartCount">0</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="page-hero">
+  <div class="container">
+    <span class="script-title">Welcome back</span>
+    <h1>My Account</h1>
+  </div>
+</div>
+
+<div class="container">
+  <div class="account-layout">
+    <!-- Sidebar -->
+    <div class="account-sidebar">
+      <div class="account-user-card">
+        <div class="account-avatar" id="avatarEl">?</div>
+        <div class="account-user-name" id="userNameEl">Loading...</div>
+        <div class="account-user-email" id="userEmailEl"></div>
+      </div>
+      <nav class="account-nav">
+        <a class="account-nav-item active" data-tab="profile" onclick="switchTab('profile')"><span class="nav-icon">👤</span> My Profile</a>
+        <a class="account-nav-item" data-tab="orders" onclick="switchTab('orders')"><span class="nav-icon">📦</span> My Orders</a>
+        <a class="account-nav-item" data-tab="addresses" onclick="switchTab('addresses')"><span class="nav-icon">📍</span> Addresses</a>
+        <a class="account-nav-item" data-tab="wishlist" onclick="switchTab('wishlist')"><span class="nav-icon">💜</span> Wishlist</a>
+        <a class="account-nav-item" onclick="signOut()" style="cursor:pointer"><span class="nav-icon">🚪</span> Sign Out</a>
+      </nav>
+    </div>
+
+    <!-- Content -->
+    <div class="account-content">
+      <!-- Profile -->
+      <div class="account-panel active" id="panel-profile">
+        <div class="panel-header"><h2>My Profile</h2><p>Manage your personal information</p></div>
+        <div id="profileAlert" class="alert-toast"></div>
+        <div class="panel-card">
+          <h3>Personal Details</h3>
+          <div class="profile-form-grid">
+            <div class="form-group"><label>First Name</label><input type="text" id="pFirstName" placeholder="Priya"></div>
+            <div class="form-group"><label>Last Name</label><input type="text" id="pLastName" placeholder="Sharma"></div>
+            <div class="form-group full"><label>Email</label><input type="email" id="pEmail" readonly style="background:#f8f8f8;cursor:not-allowed;"></div>
+            <div class="form-group"><label>Phone</label><input type="tel" id="pPhone" placeholder="+91 98765 43210"></div>
+            <div class="form-group"><label>Date of Birth</label><input type="date" id="pDob"></div>
+          </div>
+          <button class="btn-save" onclick="saveProfile()">Save Changes</button>
+        </div>
+        <div class="panel-card">
+          <h3>Change Password</h3>
+          <div class="profile-form-grid">
+            <div class="form-group full"><label>New Password</label><input type="password" id="pNewPass" placeholder="Min. 8 characters"></div>
+            <div class="form-group full"><label>Confirm New Password</label><input type="password" id="pConfPass" placeholder="Repeat new password"></div>
+          </div>
+          <button class="btn-save" onclick="changePassword()">Update Password</button>
+        </div>
+      </div>
+
+      <!-- Orders -->
+      <div class="account-panel" id="panel-orders">
+        <div class="panel-header"><h2>My Orders</h2><p>Track and manage your orders</p></div>
+        <div id="ordersList" class="orders-list">
+          <div style="text-align:center;padding:2rem;font-family:'Jost',sans-serif;color:var(--text-light);">Loading orders...</div>
+        </div>
+      </div>
+
+      <!-- Addresses -->
+      <div class="account-panel" id="panel-addresses">
+        <div class="panel-header"><h2>My Addresses</h2><p>Manage saved delivery addresses</p></div>
+        <div id="addressesGrid" class="addresses-grid"></div>
+      </div>
+
+      <!-- Wishlist -->
+      <div class="account-panel" id="panel-wishlist">
+        <div class="panel-header"><h2>My Wishlist</h2><p>Items you've saved for later</p></div>
+        <div id="wishlistGrid" class="wishlist-grid"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="container"><div class="footer-bottom"><p>© 2025 Halo Buds. All rights reserved.</p></div></div>
+</footer>
+
+<script type="module">
+import { Auth, Orders, Wishlist, Utils } from '../js/config.js';
+const { supabase } = Auth;
+
+let currentUser = null;
+let currentProfile = null;
+
+window.switchTab = (tab) => {
+  document.querySelectorAll('.account-nav-item').forEach(el => el.classList.remove('active'));
+  document.querySelector(`[data-tab="${tab}"]`)?.classList.add('active');
+  document.querySelectorAll('.account-panel').forEach(el => el.classList.remove('active'));
+  document.getElementById('panel-' + tab)?.classList.add('active');
+  if (tab === 'orders') loadOrders();
+  if (tab === 'addresses') loadAddresses();
+  if (tab === 'wishlist') loadWishlist();
+};
+
+async function init() {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) { window.location.href = 'login.html?redirect=account.html'; return; }
+  currentUser = user;
+
+  const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+  currentProfile = profile;
+
+  const name = profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() : user.email;
+  document.getElementById('avatarEl').textContent = (name[0] || '?').toUpperCase();
+  document.getElementById('userNameEl').textContent = name || user.email;
+  document.getElementById('userEmailEl').textContent = user.email;
+
+  if (profile) {
+    document.getElementById('pFirstName').value = profile.first_name || '';
+    document.getElementById('pLastName').value = profile.last_name || '';
+    document.getElementById('pPhone').value = profile.phone || '';
+    document.getElementById('pDob').value = profile.date_of_birth || '';
+  }
+  document.getElementById('pEmail').value = user.email;
+
+  // Check hash
+  const hash = location.hash.replace('#','');
+  if (hash) switchTab(hash);
+}
+
+window.saveProfile = async () => {
+  const alert = document.getElementById('profileAlert');
+  alert.className = 'alert-toast';
+  const { error } = await supabase.from('profiles').upsert({
+    id: currentUser.id,
+    first_name: document.getElementById('pFirstName').value.trim(),
+    last_name: document.getElementById('pLastName').value.trim(),
+    phone: document.getElementById('pPhone').value.trim(),
+    date_of_birth: document.getElementById('pDob').value || null,
+    updated_at: new Date().toISOString()
+  });
+  if (error) { alert.className = 'alert-toast error'; alert.textContent = error.message; }
+  else { alert.className = 'alert-toast success'; alert.textContent = '✓ Profile updated successfully!'; }
+};
+
+window.changePassword = async () => {
+  const pass = document.getElementById('pNewPass').value;
+  const conf = document.getElementById('pConfPass').value;
+  const alert = document.getElementById('profileAlert');
+  if (pass.length < 8) { alert.className='alert-toast error'; alert.textContent='Password must be at least 8 characters.'; return; }
+  if (pass !== conf) { alert.className='alert-toast error'; alert.textContent='Passwords do not match.'; return; }
+  const { error } = await supabase.auth.updateUser({ password: pass });
+  if (error) { alert.className='alert-toast error'; alert.textContent=error.message; }
+  else { alert.className='alert-toast success'; alert.textContent='✓ Password updated!'; document.getElementById('pNewPass').value=''; document.getElementById('pConfPass').value=''; }
+};
+
+async function loadOrders() {
+  const container = document.getElementById('ordersList');
+  const orders = await Orders.getMyOrders();
+  if (!orders?.length) {
+    container.innerHTML = `<div class="panel-card"><div class="empty-panel"><div class="empty-icon">📦</div><h3>No orders yet</h3><p>Looks like you haven't placed any orders.</p><a href="shop.html" class="btn-save" style="display:inline-block;text-decoration:none;">Start Shopping</a></div></div>`;
+    return;
+  }
+  container.innerHTML = orders.map(o => `
+    <div class="order-item">
+      <div class="order-item-header">
+        <div><div class="order-num">#${o.order_number}</div><div class="order-date">${Utils.formatDate(o.created_at)}</div></div>
+        <span class="order-status-badge status-${o.status}">${Utils.getOrderStatusLabel(o.status)}</span>
+      </div>
+      <div class="order-item-footer">
+        <div class="order-total">${Utils.formatPrice(o.total_amount)}</div>
+        <div class="order-actions">
+          <a href="order-detail.html?id=${o.id}" class="btn-sm">View Details</a>
+          <a href="track-order.html?order=${o.order_number}" class="btn-sm">Track</a>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+async function loadAddresses() {
+  const container = document.getElementById('addressesGrid');
+  const { data: addresses } = await supabase.from('addresses').select('*').eq('user_id', currentUser.id).order('is_default', { ascending: false });
+  const cards = (addresses||[]).map(a => `
+    <div class="address-card ${a.is_default ? 'default' : ''}">
+      ${a.is_default ? '<div class="default-badge">Default</div>' : ''}
+      <div class="address-name">${a.first_name} ${a.last_name}</div>
+      <div class="address-text">${a.address_line1}${a.address_line2 ? ', '+a.address_line2 : ''}<br>${a.city}, ${a.state} ${a.pincode}<br>${a.phone}</div>
+      <div class="address-actions">
+        ${!a.is_default ? `<button class="btn-addr" onclick="setDefault('${a.id}')">Set Default</button>` : ''}
+        <button class="btn-addr danger" onclick="deleteAddress('${a.id}')">Delete</button>
+      </div>
+    </div>`).join('');
+  container.innerHTML = cards + `<a href="#" class="add-address-card" onclick="addAddress(event)"><div class="plus">+</div><span>Add New Address</span></a>`;
+}
+
+window.setDefault = async (id) => {
+  await supabase.from('addresses').update({ is_default: false }).eq('user_id', currentUser.id);
+  await supabase.from('addresses').update({ is_default: true }).eq('id', id);
+  loadAddresses();
+};
+
+window.deleteAddress = async (id) => {
+  if (!confirm('Delete this address?')) return;
+  await supabase.from('addresses').delete().eq('id', id);
+  loadAddresses();
+};
+
+window.addAddress = (e) => { e.preventDefault(); alert('Address form coming soon! For now, addresses are saved automatically during checkout.'); };
+
+async function loadWishlist() {
+  const container = document.getElementById('wishlistGrid');
+  const items = await Wishlist.get();
+  if (!items?.length) {
+    container.innerHTML = `<div class="panel-card" style="grid-column:1/-1"><div class="empty-panel"><div class="empty-icon">💜</div><h3>Your wishlist is empty</h3><p>Save items you love for later.</p><a href="shop.html" class="btn-save" style="display:inline-block;text-decoration:none;">Browse Products</a></div></div>`;
+    return;
+  }
+  container.innerHTML = items.map(item => `
+    <div class="wishlist-item">
+      <div class="wishlist-item-img">${item.image_url ? `<img src="${item.image_url}" alt="${item.name}">` : '🌸'}</div>
+      <div class="wishlist-item-info">
+        <a href="product.html?slug=${item.slug}" class="wishlist-item-name">${item.name}</a>
+        <div class="wishlist-item-price">${Utils.formatPrice(item.sale_price || item.price)}</div>
+      </div>
+      <button class="wishlist-remove" onclick="removeWishlist('${item.product_id}')">✕</button>
+    </div>`).join('');
+}
+
+window.removeWishlist = async (productId) => {
+  await Wishlist.toggle(productId);
+  loadWishlist();
+};
+
+window.signOut = async () => {
+  await supabase.auth.signOut();
+  window.location.href = '../index.html';
+};
+
+init();
+</script>
+</body>
+</html>

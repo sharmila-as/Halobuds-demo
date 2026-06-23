@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Order Confirmed — Halo Buds</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Great+Vibes&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/main.css">
+<style>
+body { min-height: 100vh; background: linear-gradient(135deg, #f8f5ff 0%, #fdf2f8 50%, #f0f9ff 100%); }
+.confirm-page { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; padding: 3rem 1.5rem; text-align: center; }
+.confetti-wrap { position: fixed; inset: 0; pointer-events: none; z-index: 9999; overflow: hidden; }
+.confetti-piece { position: absolute; width: 8px; height: 8px; top: -10px; animation: confettiFall linear forwards; border-radius: 2px; }
+@keyframes confettiFall { to { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
+.success-circle { width: 120px; height: 120px; background: linear-gradient(135deg, var(--purple-brand), #ec4899); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 2rem; animation: popIn 0.6s cubic-bezier(0.175,0.885,0.32,1.275); box-shadow: 0 20px 50px rgba(107,63,160,0.3); }
+@keyframes popIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.success-circle svg { width: 52px; height: 52px; stroke: white; stroke-width: 2.5; animation: drawCheck 0.4s ease 0.4s both; }
+@keyframes drawCheck { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
+.confirm-script { font-family: 'Great Vibes', cursive; font-size: 2.5rem; color: var(--purple-brand); display: block; margin-bottom: 0.5rem; animation: fadeUp 0.6s ease 0.2s both; }
+.confirm-h1 { font-family: 'Cormorant Garamond', serif; font-size: 3rem; font-weight: 400; color: var(--text-dark); margin-bottom: 0.75rem; animation: fadeUp 0.6s ease 0.3s both; }
+.confirm-sub { font-family: 'Jost', sans-serif; font-size: 1rem; color: var(--text-medium); margin-bottom: 2rem; line-height: 1.6; max-width: 480px; animation: fadeUp 0.6s ease 0.4s both; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.order-card { background: white; border-radius: 24px; padding: 2.5rem; max-width: 520px; width: 100%; box-shadow: 0 20px 60px rgba(107,63,160,0.1); margin-bottom: 2rem; animation: fadeUp 0.6s ease 0.5s both; }
+.order-number-badge { display: inline-flex; align-items: center; gap: 0.5rem; background: var(--purple-pale); color: var(--purple-brand); padding: 0.5rem 1.25rem; border-radius: 100px; font-family: 'Jost', sans-serif; font-size: 0.9rem; font-weight: 600; margin-bottom: 1.5rem; letter-spacing: 0.05em; }
+.order-details { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; text-align: left; }
+.order-detail-item { }
+.order-detail-label { font-family: 'Jost', sans-serif; font-size: 0.75rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-light); margin-bottom: 0.25rem; }
+.order-detail-value { font-family: 'Jost', sans-serif; font-size: 0.95rem; color: var(--text-dark); font-weight: 500; }
+.order-divider { border: none; border-top: 1px solid var(--border-light); margin: 1.5rem 0; }
+.order-steps { display: flex; justify-content: space-between; align-items: flex-start; margin-top: 0.5rem; position: relative; }
+.order-steps::before { content: ''; position: absolute; top: 14px; left: 40px; right: 40px; height: 2px; background: linear-gradient(to right, var(--purple-brand), var(--purple-mid), #ec4899); opacity: 0.3; }
+.order-step { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; flex: 1; }
+.step-dot { width: 28px; height: 28px; border-radius: 50%; background: var(--purple-pale); border: 2px solid var(--purple-brand); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; color: var(--purple-brand); position: relative; z-index: 1; }
+.step-dot.active { background: var(--purple-brand); color: white; }
+.step-label { font-family: 'Jost', sans-serif; font-size: 0.72rem; color: var(--text-medium); text-align: center; }
+.confirm-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; animation: fadeUp 0.6s ease 0.6s both; }
+.confirm-actions a { padding: 0.875rem 2rem; border-radius: 12px; font-family: 'Jost', sans-serif; font-size: 0.9rem; font-weight: 500; text-decoration: none; transition: all 0.25s; }
+.btn-primary-action { background: var(--purple-brand); color: white; }
+.btn-primary-action:hover { background: var(--purple-deep); transform: translateY(-1px); box-shadow: 0 8px 25px rgba(107,63,160,0.3); }
+.btn-secondary-action { background: white; color: var(--purple-brand); border: 1.5px solid var(--purple-brand); }
+.btn-secondary-action:hover { background: var(--purple-pale); }
+.cod-notice { background: #fffbeb; border: 1px solid #f6e05e; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1rem; font-family: 'Jost', sans-serif; font-size: 0.875rem; color: #744210; text-align: left; line-height: 1.6; }
+</style>
+</head>
+<body>
+<div class="confetti-wrap" id="confettiWrap"></div>
+
+<header class="site-header">
+  <div class="container">
+    <div class="header-inner">
+      <a href="../index.html" class="logo">
+        <div class="logo-mark">HB</div>
+        <div class="logo-text"><span class="logo-name">Halo Buds</span><span class="logo-tagline">Fully Handmade & Customized</span></div>
+      </a>
+      <div class="header-actions">
+        <a href="account.html" class="icon-btn" aria-label="Account">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="confirm-page">
+  <div class="success-circle">
+    <svg viewBox="0 0 52 52" fill="none">
+      <polyline points="14,26 22,34 38,18" stroke-dasharray="100" stroke-dashoffset="100" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+  <span class="confirm-script">Thank you!</span>
+  <h1 class="confirm-h1">Order Confirmed 🎉</h1>
+  <p class="confirm-sub">Your beautiful handmade creation is being prepared with love. We'll email you updates every step of the way.</p>
+
+  <div class="order-card">
+    <div class="order-number-badge">📦 Order <span id="orderNum">#HB00000</span></div>
+
+    <div id="codNotice" class="cod-notice" style="display:none">
+      💵 <strong>Cash on Delivery:</strong> Please keep the exact amount ready when your order arrives. Our delivery partner will collect payment.
+    </div>
+
+    <div class="order-details">
+      <div class="order-detail-item"><div class="order-detail-label">Order Date</div><div class="order-detail-value" id="orderDate">—</div></div>
+      <div class="order-detail-item"><div class="order-detail-label">Payment</div><div class="order-detail-value" id="paymentMethod">—</div></div>
+      <div class="order-detail-item"><div class="order-detail-label">Estimated Delivery</div><div class="order-detail-value" id="estDelivery">—</div></div>
+      <div class="order-detail-item"><div class="order-detail-label">Status</div><div class="order-detail-value" style="color:var(--purple-brand)">Confirmed ✓</div></div>
+    </div>
+
+    <hr class="order-divider">
+
+    <p style="font-family:'Jost',sans-serif;font-size:0.82rem;color:var(--text-light);margin-bottom:1rem;text-align:left;">Order Progress</p>
+    <div class="order-steps">
+      <div class="order-step"><div class="step-dot active">✓</div><div class="step-label">Confirmed</div></div>
+      <div class="order-step"><div class="step-dot">🔨</div><div class="step-label">Crafting</div></div>
+      <div class="order-step"><div class="step-dot">📦</div><div class="step-label">Packed</div></div>
+      <div class="order-step"><div class="step-dot">🚚</div><div class="step-label">Shipped</div></div>
+      <div class="order-step"><div class="step-dot">🎁</div><div class="step-label">Delivered</div></div>
+    </div>
+  </div>
+
+  <div class="confirm-actions">
+    <a href="order-history.html" class="btn-primary-action">View My Orders</a>
+    <a href="track-order.html" class="btn-secondary-action">Track This Order</a>
+    <a href="shop.html" class="btn-secondary-action">Continue Shopping</a>
+  </div>
+</div>
+
+<script>
+// Confetti
+function launchConfetti() {
+  const colors = ['#6B3FA0','#ec4899','#FFB7C5','#a78bfa','#fbbf24','#34d399'];
+  const wrap = document.getElementById('confettiWrap');
+  for (let i = 0; i < 120; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.cssText = `
+      left: ${Math.random() * 100}%;
+      background: ${colors[Math.floor(Math.random() * colors.length)]};
+      width: ${4 + Math.random() * 8}px;
+      height: ${4 + Math.random() * 8}px;
+      animation-duration: ${2 + Math.random() * 3}s;
+      animation-delay: ${Math.random() * 1.5}s;
+      border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+    `;
+    wrap.appendChild(piece);
+  }
+  setTimeout(() => wrap.remove(), 6000);
+}
+
+const params = new URLSearchParams(location.search);
+const orderNum = params.get('order') || 'HB00000';
+const method = params.get('method') || 'online';
+
+document.getElementById('orderNum').textContent = '#' + orderNum;
+document.getElementById('orderDate').textContent = new Date().toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
+document.getElementById('paymentMethod').textContent = method === 'cod' ? 'Cash on Delivery' : 'Online Payment ✓';
+document.getElementById('estDelivery').textContent = (() => {
+  const d = new Date(); d.setDate(d.getDate() + 7);
+  return d.toLocaleDateString('en-IN', { day:'numeric', month:'short' }) + ' – ' +
+    (() => { const d2 = new Date(); d2.setDate(d2.getDate()+10); return d2.toLocaleDateString('en-IN',{day:'numeric',month:'short'}); })();
+})();
+
+if (method === 'cod') document.getElementById('codNotice').style.display = 'block';
+
+launchConfetti();
+</script>
+</body>
+</html>

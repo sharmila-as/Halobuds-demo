@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Messages — Halo Buds Admin</title>
+<link rel="stylesheet" href="css/admin.css">
+<style>
+.msg-thread { border:1px solid var(--border);border-radius:14px;overflow:hidden;background:white;transition:all .25s; }
+.msg-thread:hover { box-shadow:0 4px 20px rgba(107,63,160,.08); }
+.msg-thread-header { display:flex;align-items:flex-start;justify-content:space-between;padding:1rem 1.25rem;cursor:pointer;gap:1rem; }
+.msg-meta { flex:1;min-width:0; }
+.msg-name { font-weight:600;color:var(--text-dark);font-size:.9rem; }
+.msg-subject { font-size:.82rem;color:var(--text-medium);margin-top:.15rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.msg-preview { font-size:.78rem;color:var(--text-light);margin-top:.1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.msg-right { display:flex;flex-direction:column;align-items:flex-end;gap:.35rem;flex-shrink:0; }
+.msg-date { font-size:.75rem;color:var(--text-light); }
+.msg-body { display:none;padding:1rem 1.25rem;border-top:1px solid var(--border);background:#fafafa; }
+.msg-body.open { display:block; }
+.msg-full-text { font-family:'Jost',sans-serif;font-size:.875rem;color:var(--text-medium);line-height:1.7;white-space:pre-wrap; }
+.msg-actions { display:flex;gap:.5rem;margin-top:1rem; }
+.unread-dot { width:8px;height:8px;border-radius:50%;background:var(--purple-brand);flex-shrink:0;margin-top:.3rem; }
+</style>
+</head>
+<body>
+<aside class="admin-sidebar">
+  <div class="sidebar-logo"><a href="index.html" class="brand"><div class="logo-mark-sm">HB</div><div><div class="sidebar-brand-text">Halo Buds</div><div class="sidebar-brand-sub">Admin Panel</div></div></a></div>
+  <nav class="admin-nav">
+    <div class="nav-section">Main</div><a href="index.html"><span class="nav-icon">📊</span> Dashboard</a><a href="orders.html"><span class="nav-icon">📦</span> Orders</a>
+    <div class="nav-section">Catalogue</div><a href="products.html"><span class="nav-icon">🛍️</span> Products</a><a href="categories.html"><span class="nav-icon">🗂️</span> Categories</a><a href="banners.html"><span class="nav-icon">🖼️</span> Banners</a>
+    <div class="nav-section">Customers</div><a href="customers.html"><span class="nav-icon">👥</span> Customers</a><a href="reviews.html"><span class="nav-icon">⭐</span> Reviews</a>
+    <div class="nav-section">Support</div><a href="messages.html" class="active"><span class="nav-icon">💬</span> Messages</a><a href="custom-requests.html"><span class="nav-icon">✏️</span> Custom Requests</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="admin-user"><div class="admin-avatar" id="adminAvatarEl">A</div><div class="admin-user-info"><div class="admin-user-name" id="adminNameEl">Admin</div><div class="admin-user-role">Administrator</div></div></div>
+    <a href="../index.html" class="view-site-link" target="_blank">🌐 View Site ↗</a>
+    <button class="btn-logout" onclick="adminSignOut()">🚪 Sign Out</button>
+  </div>
+</aside>
+
+<main class="admin-main">
+  <div class="admin-topbar">
+    <div class="topbar-title">Contact Messages</div>
+    <div class="topbar-actions"><span id="unreadCount" style="font-size:.875rem;color:var(--text-light)"></span></div>
+  </div>
+
+  <div class="admin-content">
+    <div class="admin-card" style="margin-bottom:1.5rem">
+      <div class="table-toolbar">
+        <div class="search-input-wrap">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input type="text" id="searchInput" placeholder="Search messages..." oninput="filterMessages()">
+        </div>
+        <select class="filter-select" id="statusFilter" onchange="filterMessages()">
+          <option value="">All Messages</option>
+          <option value="unread">Unread</option>
+          <option value="read">Read</option>
+          <option value="resolved">Resolved</option>
+        </select>
+        <select class="filter-select" id="subjectFilter" onchange="filterMessages()">
+          <option value="">All Topics</option>
+          <option value="order_query">Order Query</option>
+          <option value="custom_order">Custom Order</option>
+          <option value="product_info">Product Info</option>
+          <option value="return_exchange">Return/Exchange</option>
+          <option value="payment_issue">Payment Issue</option>
+          <option value="general">General</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="messagesList" style="display:flex;flex-direction:column;gap:.75rem">
+      <div class="loading">Loading messages...</div>
+    </div>
+  </div>
+</main>
+
+<script type="module">
+import { supabase, requireAdmin, adminSignOut, formatDateTime, getStatusBadge, showToast } from './js/admin.js';
+window.adminSignOut = adminSignOut;
+
+let all = [], filtered = [];
+const SUBJECT_LABELS = { order_query:'Order Query', custom_order:'Custom Order', product_info:'Product Info', return_exchange:'Return/Exchange', payment_issue:'Payment Issue', general:'General Enquiry' };
+
+async function init() {
+  const auth = await requireAdmin();
+  if (!auth) return;
+  const name = `${auth.profile.first_name||''} ${auth.profile.last_name||''}`.trim() || 'Admin';
+  document.getElementById('adminNameEl').textContent = name;
+  document.getElementById('adminAvatarEl').textContent = name[0].toUpperCase();
+  load();
+}
+
+async function load() {
+  const { data } = await supabase.from('contact_messages').select('*').order('created_at', { ascending: false });
+  all = data || [];
+  const unread = all.filter(m => m.status === 'unread').length;
+  document.getElementById('unreadCount').textContent = unread ? `${unread} unread` : 'All read';
+  filtered = [...all];
+  render();
+}
+
+window.filterMessages = () => {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const status = document.getElementById('statusFilter').value;
+  const subject = document.getElementById('subjectFilter').value;
+  filtered = all.filter(m => {
+    const matchQ = !q || m.name?.toLowerCase().includes(q) || m.email?.toLowerCase().includes(q) || m.message?.toLowerCase().includes(q);
+    const matchS = !status || m.status === status;
+    const matchSub = !subject || m.subject === subject;
+    return matchQ && matchS && matchSub;
+  });
+  render();
+};
+
+function render() {
+  const el = document.getElementById('messagesList');
+  if (!filtered.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">💬</div><h3>No messages</h3><p>Contact form submissions will appear here</p></div>';
+    return;
+  }
+  el.innerHTML = filtered.map(m => `
+    <div class="msg-thread" id="msg-${m.id}">
+      <div class="msg-thread-header" onclick="toggleMsg('${m.id}')">
+        ${m.status === 'unread' ? '<div class="unread-dot"></div>' : '<div style="width:8px"></div>'}
+        <div class="msg-meta">
+          <div class="msg-name">${m.name} <span style="font-weight:400;font-size:.8rem;color:var(--text-light)">· ${m.email}</span>${m.phone?` · ${m.phone}`:''}</div>
+          <div class="msg-subject">${SUBJECT_LABELS[m.subject]||m.subject||'General'}${m.order_number?' · Order #'+m.order_number:''}</div>
+          <div class="msg-preview">${(m.message||'').slice(0, 80)}${m.message?.length>80?'…':''}</div>
+        </div>
+        <div class="msg-right">
+          ${getStatusBadge(m.status||'unread')}
+          <div class="msg-date">${formatDateTime(m.created_at)}</div>
+        </div>
+      </div>
+      <div class="msg-body" id="body-${m.id}">
+        <div class="msg-full-text">${m.message||''}</div>
+        <div class="msg-actions">
+          <a href="mailto:${m.email}?subject=Re: ${encodeURIComponent(m.subject||'Your enquiry')}" class="btn btn-primary btn-sm">📧 Reply by Email</a>
+          ${m.phone ? `<a href="https://wa.me/${m.phone.replace(/\D/g,'')}?text=Hi%20${encodeURIComponent(m.name)}!" target="_blank" class="btn btn-secondary btn-sm">💬 WhatsApp</a>` : ''}
+          ${m.status !== 'resolved' ? `<button class="btn btn-secondary btn-sm" onclick="updateStatus('${m.id}','resolved')">✓ Mark Resolved</button>` : ''}
+          ${m.status === 'unread' ? `<button class="btn btn-secondary btn-sm" onclick="updateStatus('${m.id}','read')">Mark Read</button>` : ''}
+          <button class="btn btn-danger btn-sm" onclick="deleteMsg('${m.id}')">Delete</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+window.toggleMsg = async (id) => {
+  const body = document.getElementById('body-' + id);
+  const isOpen = body.classList.toggle('open');
+  if (isOpen) {
+    const msg = all.find(m => m.id === id);
+    if (msg?.status === 'unread') await updateStatus(id, 'read', false);
+  }
+};
+
+window.updateStatus = async (id, status, reload = true) => {
+  const { error } = await supabase.from('contact_messages').update({ status, updated_at: new Date().toISOString() }).eq('id', id);
+  if (error) { showToast('Error: '+error.message, 'error'); return; }
+  if (reload) { showToast('Status updated'); load(); }
+  else {
+    const msg = all.find(m => m.id === id);
+    if (msg) msg.status = status;
+    const dot = document.querySelector(`#msg-${id} .unread-dot`);
+    if (dot) dot.remove();
+  }
+};
+
+window.deleteMsg = async (id) => {
+  if (!confirm('Delete this message?')) return;
+  const { error } = await supabase.from('contact_messages').delete().eq('id', id);
+  if (error) { showToast('Error: '+error.message, 'error'); return; }
+  showToast('Message deleted');
+  load();
+};
+
+init();
+</script>
+</body>
+</html>

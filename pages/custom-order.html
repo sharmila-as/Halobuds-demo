@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Custom Order — Halo Buds</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Great+Vibes&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/main.css">
+<style>
+.custom-hero { background: linear-gradient(135deg, var(--purple-deep) 0%, var(--purple-brand) 60%, #ec4899 100%); padding: 5rem 0; text-align: center; color: white; position: relative; overflow: hidden; }
+.custom-hero::before { content: ''; position: absolute; inset: 0; background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M50 20 Q60 35 50 50 Q40 35 50 20Z' fill='%23ffffff08'/%3E%3Cpath d='M20 50 Q35 60 50 50 Q35 40 20 50Z' fill='%23ffffff06'/%3E%3C/svg%3E"); }
+.custom-hero .script { font-family: 'Great Vibes', cursive; font-size: 3rem; display: block; margin-bottom: 0.5rem; position: relative; }
+.custom-hero h1 { font-family: 'Cormorant Garamond', serif; font-size: 3.5rem; font-weight: 300; position: relative; margin-bottom: 1rem; }
+.custom-hero p { font-family: 'Jost', sans-serif; font-size: 1rem; opacity: 0.85; max-width: 540px; margin: 0 auto; position: relative; line-height: 1.7; }
+.custom-steps { background: white; padding: 3rem 0; border-bottom: 1px solid var(--border); }
+.steps-row { display: flex; justify-content: center; gap: 0; }
+.step-item { display: flex; flex-direction: column; align-items: center; text-align: center; width: 160px; position: relative; }
+.step-item:not(:last-child)::after { content: '→'; position: absolute; right: -16px; top: 22px; color: var(--purple-brand); font-size: 1.2rem; opacity: 0.5; }
+.step-circle { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--purple-brand), #ec4899); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; margin-bottom: 0.75rem; box-shadow: 0 6px 20px rgba(107,63,160,0.3); }
+.step-title { font-family: 'Jost', sans-serif; font-size: 0.85rem; font-weight: 600; color: var(--text-dark); margin-bottom: 0.25rem; }
+.step-sub { font-family: 'Jost', sans-serif; font-size: 0.75rem; color: var(--text-light); line-height: 1.4; }
+.custom-form-section { padding: 4rem 0; }
+.custom-layout { display: grid; grid-template-columns: 1fr 420px; gap: 3rem; align-items: start; }
+.form-card { background: white; border-radius: 24px; border: 1px solid var(--border); padding: 2.5rem; }
+.form-card h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 400; color: var(--text-dark); margin-bottom: 0.5rem; }
+.form-card .form-subtitle { font-family: 'Jost', sans-serif; font-size: 0.88rem; color: var(--text-light); margin-bottom: 2rem; }
+.form-section-title { font-family: 'Jost', sans-serif; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--purple-brand); margin: 1.75rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--purple-pale); }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.form-group { margin-bottom: 0; }
+.form-group.full { grid-column: 1/-1; }
+.form-group label { display: block; font-family: 'Jost', sans-serif; font-size: 0.78rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-medium); margin-bottom: 0.4rem; }
+.form-group label .optional { font-weight: 400; text-transform: none; letter-spacing: 0; color: var(--text-light); font-size: 0.75rem; }
+.form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.8rem 1rem; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Jost', sans-serif; font-size: 0.9rem; color: var(--text-dark); background: white; transition: all 0.25s; outline: none; box-sizing: border-box; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--purple-brand); box-shadow: 0 0 0 3px rgba(107,63,160,0.08); }
+.form-group textarea { resize: vertical; min-height: 100px; }
+.product-type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
+.type-option { border: 1.5px solid var(--border); border-radius: 12px; padding: 0.875rem 0.75rem; text-align: center; cursor: pointer; transition: all 0.2s; }
+.type-option input[type="radio"] { display: none; }
+.type-option:hover { border-color: var(--purple-brand); }
+.type-option.selected { border-color: var(--purple-brand); background: var(--purple-pale); }
+.type-option .type-icon { font-size: 1.5rem; display: block; margin-bottom: 0.4rem; }
+.type-option .type-name { font-family: 'Jost', sans-serif; font-size: 0.78rem; font-weight: 500; color: var(--text-dark); }
+.photo-upload-zone { border: 2px dashed var(--border); border-radius: 14px; padding: 2rem; text-align: center; cursor: pointer; transition: all 0.25s; position: relative; }
+.photo-upload-zone:hover, .photo-upload-zone.dragover { border-color: var(--purple-brand); background: var(--purple-pale); }
+.photo-upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.photo-upload-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+.photo-upload-text { font-family: 'Jost', sans-serif; font-size: 0.9rem; color: var(--text-medium); }
+.photo-upload-sub { font-family: 'Jost', sans-serif; font-size: 0.78rem; color: var(--text-light); margin-top: 0.3rem; }
+.photo-previews { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-top: 1rem; }
+.photo-preview { position: relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden; background: var(--purple-pale); }
+.photo-preview img { width: 100%; height: 100%; object-fit: cover; }
+.photo-preview .remove-photo { position: absolute; top: 4px; right: 4px; width: 20px; height: 20px; background: rgba(0,0,0,0.6); color: white; border: none; border-radius: 50%; cursor: pointer; font-size: 0.7rem; display: flex; align-items: center; justify-content: center; }
+.budget-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+.budget-option { border: 1.5px solid var(--border); border-radius: 10px; padding: 0.875rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 0.6rem; }
+.budget-option input[type="radio"] { accent-color: var(--purple-brand); }
+.budget-option:has(input:checked) { border-color: var(--purple-brand); background: var(--purple-pale); }
+.budget-option label { font-family: 'Jost', sans-serif; font-size: 0.875rem; color: var(--text-dark); cursor: pointer; }
+.btn-submit-custom { width: 100%; padding: 1.1rem; background: linear-gradient(135deg, var(--purple-brand), #ec4899); color: white; border: none; border-radius: 14px; font-family: 'Jost', sans-serif; font-size: 1rem; font-weight: 500; letter-spacing: 0.05em; cursor: pointer; transition: all 0.3s; margin-top: 1.5rem; }
+.btn-submit-custom:hover { transform: translateY(-2px); box-shadow: 0 12px 35px rgba(107,63,160,0.35); }
+.btn-submit-custom:disabled { opacity: 0.6; transform: none; cursor: not-allowed; }
+.sidebar-card { background: white; border-radius: 20px; border: 1px solid var(--border); padding: 2rem; margin-bottom: 1.5rem; position: sticky; top: 100px; }
+.sidebar-card h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 400; color: var(--text-dark); margin-bottom: 1.25rem; }
+.feature-list { display: flex; flex-direction: column; gap: 0.875rem; }
+.feature-item { display: flex; align-items: flex-start; gap: 0.75rem; }
+.feature-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+.feature-text { font-family: 'Jost', sans-serif; font-size: 0.875rem; color: var(--text-medium); line-height: 1.5; }
+.feature-text strong { color: var(--text-dark); display: block; font-weight: 600; margin-bottom: 0.1rem; }
+.form-alert { padding: 0.875rem 1rem; border-radius: 10px; font-family: 'Jost', sans-serif; font-size: 0.875rem; margin-bottom: 1.25rem; display: none; }
+.form-alert.success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; display: block; }
+.form-alert.error { background: #fff5f5; border: 1px solid #fed7d7; color: #c53030; display: block; }
+@media (max-width: 900px) {
+  .custom-layout { grid-template-columns: 1fr; }
+  .sidebar-card { position: static; }
+  .product-type-grid { grid-template-columns: repeat(2, 1fr); }
+  .steps-row { flex-wrap: wrap; gap: 2rem; }
+  .step-item:not(:last-child)::after { display: none; }
+}
+</style>
+</head>
+<body>
+<header class="site-header" id="siteHeader">
+  <div class="container">
+    <div class="header-inner">
+      <a href="../index.html" class="logo">
+        <div class="logo-mark">HB</div>
+        <div class="logo-text"><span class="logo-name">Halo Buds</span><span class="logo-tagline">Fully Handmade & Customized</span></div>
+      </a>
+      <nav class="main-nav">
+        <a href="../index.html">Home</a><a href="shop.html">Shop</a><a href="custom-order.html" class="active">Custom Order</a><a href="about.html">About</a><a href="contact.html">Contact</a>
+      </nav>
+      <div class="header-actions">
+        <a href="cart.html" class="icon-btn"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><span class="cart-badge" id="cartCount">0</span></a>
+        <a href="account.html" class="icon-btn"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="custom-hero">
+  <div class="container">
+    <span class="script">Something just for you</span>
+    <h1>Design Your Custom Creation</h1>
+    <p>Tell us your vision and our artisans will craft something truly unique, made with love and care just for you.</p>
+  </div>
+</div>
+
+<div class="custom-steps">
+  <div class="container">
+    <div class="steps-row">
+      <div class="step-item"><div class="step-circle">📝</div><div class="step-title">Fill the Form</div><div class="step-sub">Share your vision & details</div></div>
+      <div class="step-item"><div class="step-circle">💬</div><div class="step-title">We Reach Out</div><div class="step-sub">Within 24 hours for confirmation</div></div>
+      <div class="step-item"><div class="step-circle">🔨</div><div class="step-title">We Craft It</div><div class="step-sub">Handmade with love & care</div></div>
+      <div class="step-item"><div class="step-circle">🎁</div><div class="step-title">You Receive</div><div class="step-sub">Your unique creation delivered</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="custom-form-section">
+  <div class="container">
+    <div class="custom-layout">
+      <div class="form-card">
+        <h2>Custom Order Request</h2>
+        <p class="form-subtitle">Fill in as much detail as possible — the more we know, the better we can create for you! 🌸</p>
+
+        <div id="formAlert" class="form-alert"></div>
+
+        <form id="customForm" novalidate>
+          <div class="form-section-title">Your Contact Details</div>
+          <div class="form-grid">
+            <div class="form-group"><label>Full Name *</label><input type="text" id="custName" placeholder="Priya Sharma"></div>
+            <div class="form-group"><label>Phone *</label><input type="tel" id="custPhone" placeholder="+91 98765 43210"></div>
+            <div class="form-group full"><label>Email *</label><input type="email" id="custEmail" placeholder="you@email.com"></div>
+          </div>
+
+          <div class="form-section-title">What Would You Like?</div>
+          <div class="product-type-grid" id="productTypeGrid">
+            <label class="type-option"><input type="radio" name="productType" value="floral_crown"><span class="type-icon">👑</span><span class="type-name">Floral Crown</span></label>
+            <label class="type-option"><input type="radio" name="productType" value="hair_accessory"><span class="type-icon">🎀</span><span class="type-name">Hair Accessory</span></label>
+            <label class="type-option"><input type="radio" name="productType" value="bouquet"><span class="type-icon">💐</span><span class="type-name">Bouquet</span></label>
+            <label class="type-option"><input type="radio" name="productType" value="gift_hamper"><span class="type-icon">🎁</span><span class="type-name">Gift Hamper</span></label>
+            <label class="type-option"><input type="radio" name="productType" value="jewelry"><span class="type-icon">💍</span><span class="type-name">Floral Jewelry</span></label>
+            <label class="type-option"><input type="radio" name="productType" value="other"><span class="type-icon">✨</span><span class="type-name">Something Else</span></label>
+          </div>
+
+          <div class="form-section-title">Personalization Details</div>
+          <div class="form-grid">
+            <div class="form-group"><label>Custom Name <span class="optional">(optional)</span></label><input type="text" id="customName" placeholder="e.g. Ananya"></div>
+            <div class="form-group"><label>Occasion</label><select id="occasion"><option value="">Select occasion</option><option>Wedding</option><option>Birthday</option><option>Anniversary</option><option>Baby Shower</option><option>Graduation</option><option>Housewarming</option><option>Engagement</option><option>Festival</option><option>Just Because</option><option>Other</option></select></div>
+            <div class="form-group full"><label>Custom Message <span class="optional">(optional)</span></label><input type="text" id="customMessage" placeholder="A message to include with the gift..."></div>
+            <div class="form-group"><label>Preferred Colors</label><input type="text" id="colors" placeholder="e.g. Pink, White, Lavender"></div>
+            <div class="form-group"><label>Preferred Flowers <span class="optional">(optional)</span></label><input type="text" id="flowers" placeholder="e.g. Roses, Lilies, Lavender"></div>
+            <div class="form-group full"><label>Special Instructions</label><textarea id="specialInstructions" placeholder="Tell us exactly what you'd like — style, size, color palette, any references..."></textarea></div>
+          </div>
+
+          <div class="form-section-title">Reference Photos <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.75rem;color:var(--text-light);">(optional but helpful!)</span></div>
+          <div class="photo-upload-zone" id="uploadZone">
+            <input type="file" id="photoUpload" multiple accept="image/*" onchange="handlePhotos(this)">
+            <div class="photo-upload-icon">📸</div>
+            <div class="photo-upload-text">Click or drag photos here</div>
+            <div class="photo-upload-sub">Upload inspiration images, reference photos, or your own photos (Max 5 images, 5MB each)</div>
+          </div>
+          <div class="photo-previews" id="photoPreviews"></div>
+
+          <div class="form-section-title">Budget Range</div>
+          <div class="budget-options">
+            <label class="budget-option"><input type="radio" name="budget" value="under_500"> <label>Under ₹500</label></label>
+            <label class="budget-option"><input type="radio" name="budget" value="500_1000"> <label>₹500 – ₹1,000</label></label>
+            <label class="budget-option"><input type="radio" name="budget" value="1000_2500"> <label>₹1,000 – ₹2,500</label></label>
+            <label class="budget-option"><input type="radio" name="budget" value="above_2500"> <label>Above ₹2,500</label></label>
+          </div>
+
+          <div class="form-section-title" style="margin-top:1.75rem">Delivery</div>
+          <div class="form-grid">
+            <div class="form-group"><label>Required By Date <span class="optional">(optional)</span></label><input type="date" id="requiredBy" min="${new Date().toISOString().split('T')[0]}"></div>
+            <div class="form-group"><label>City</label><input type="text" id="deliveryCity" placeholder="Chennai"></div>
+          </div>
+
+          <button type="submit" class="btn-submit-custom" id="submitBtn">
+            <span id="submitText">✨ Submit Custom Order Request</span>
+          </button>
+          <p style="font-family:'Jost',sans-serif;font-size:0.78rem;color:var(--text-light);text-align:center;margin-top:0.75rem;">We'll get back to you within 24 hours with a quote and confirmation.</p>
+        </form>
+      </div>
+
+      <!-- Sidebar -->
+      <div>
+        <div class="sidebar-card">
+          <h3>Why Choose Custom?</h3>
+          <div class="feature-list">
+            <div class="feature-item"><div class="feature-icon">🎨</div><div class="feature-text"><strong>Fully Personalized</strong>Crafted exactly to your vision — colors, size, style and message.</div></div>
+            <div class="feature-item"><div class="feature-icon">💜</div><div class="feature-text"><strong>Made with Love</strong>Every piece is handmade by our skilled artisans, not factory-produced.</div></div>
+            <div class="feature-item"><div class="feature-icon">🌸</div><div class="feature-text"><strong>Premium Materials</strong>We use only high-quality flowers, fabrics and accessories.</div></div>
+            <div class="feature-item"><div class="feature-icon">📦</div><div class="feature-text"><strong>Beautiful Packaging</strong>Delivered in our signature gift-ready packaging.</div></div>
+            <div class="feature-item"><div class="feature-icon">⚡</div><div class="feature-text"><strong>Fast Turnaround</strong>Most custom orders ready in 3–5 business days.</div></div>
+          </div>
+        </div>
+
+        <div class="sidebar-card" style="background:linear-gradient(135deg,var(--purple-pale),#fce7f3);border-color:var(--purple-brand);">
+          <h3>Need Help?</h3>
+          <p style="font-family:'Jost',sans-serif;font-size:0.875rem;color:var(--text-medium);line-height:1.6;margin-bottom:1rem;">Not sure what to order? Our team is happy to guide you!</p>
+          <a href="https://wa.me/919876543210?text=Hi!%20I'd%20like%20to%20place%20a%20custom%20order" target="_blank" style="display:flex;align-items:center;gap:0.5rem;background:#25d366;color:white;padding:0.75rem 1.25rem;border-radius:10px;text-decoration:none;font-family:'Jost',sans-serif;font-size:0.875rem;font-weight:500;transition:all 0.2s;">
+            <span>💬</span> Chat on WhatsApp
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="container"><div class="footer-bottom"><p>© 2025 Halo Buds. All rights reserved.</p></div></div>
+</footer>
+
+<script type="module">
+import { Auth } from '../js/config.js';
+const { supabase } = Auth;
+
+// Product type selection
+document.querySelectorAll('.type-option').forEach(label => {
+  label.addEventListener('click', () => {
+    document.querySelectorAll('.type-option').forEach(l => l.classList.remove('selected'));
+    label.classList.add('selected');
+  });
+});
+
+let uploadedFiles = [];
+
+window.handlePhotos = (input) => {
+  const files = Array.from(input.files).slice(0, 5 - uploadedFiles.length);
+  files.forEach(file => {
+    if (file.size > 5 * 1024 * 1024) { alert(`${file.name} is too large (max 5MB).`); return; }
+    uploadedFiles.push(file);
+    const reader = new FileReader();
+    reader.onload = e => {
+      const preview = document.createElement('div');
+      preview.className = 'photo-preview';
+      preview.innerHTML = `<img src="${e.target.result}"><button class="remove-photo" onclick="removePhoto(this, '${file.name}')">✕</button>`;
+      document.getElementById('photoPreviews').appendChild(preview);
+    };
+    reader.readAsDataURL(file);
+  });
+};
+
+window.removePhoto = (btn, name) => {
+  uploadedFiles = uploadedFiles.filter(f => f.name !== name);
+  btn.closest('.photo-preview').remove();
+};
+
+// Drag-drop
+const zone = document.getElementById('uploadZone');
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+zone.addEventListener('drop', e => {
+  e.preventDefault(); zone.classList.remove('dragover');
+  const dt = e.dataTransfer;
+  if (dt.files) window.handlePhotos({ files: dt.files });
+});
+
+document.getElementById('customForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const alert = document.getElementById('formAlert');
+  alert.className = 'form-alert';
+
+  const name = document.getElementById('custName').value.trim();
+  const phone = document.getElementById('custPhone').value.trim();
+  const email = document.getElementById('custEmail').value.trim();
+  const productType = document.querySelector('input[name="productType"]:checked')?.value;
+
+  if (!name || !phone || !email) {
+    alert.className = 'form-alert error';
+    alert.textContent = 'Please fill in your name, phone and email.';
+    return;
+  }
+  if (!productType) {
+    alert.className = 'form-alert error';
+    alert.textContent = 'Please select the type of product you want.';
+    return;
+  }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  document.getElementById('submitText').textContent = 'Submitting...';
+
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+
+    // Upload photos if any
+    let photoUrls = [];
+    for (const file of uploadedFiles) {
+      const path = `custom-orders/${Date.now()}-${file.name}`;
+      const { data } = await supabase.storage.from('custom-orders').upload(path, file);
+      if (data) photoUrls.push(supabase.storage.from('custom-orders').getPublicUrl(path).data.publicUrl);
+    }
+
+    const { error } = await supabase.from('custom_order_requests').insert({
+      user_id: user?.id || null,
+      customer_name: name,
+      customer_phone: phone,
+      customer_email: email,
+      product_type: productType,
+      custom_name: document.getElementById('customName').value.trim() || null,
+      occasion: document.getElementById('occasion').value || null,
+      custom_message: document.getElementById('customMessage').value.trim() || null,
+      preferred_colors: document.getElementById('colors').value.trim() || null,
+      preferred_flowers: document.getElementById('flowers').value.trim() || null,
+      special_instructions: document.getElementById('specialInstructions').value.trim() || null,
+      photo_urls: photoUrls,
+      budget_range: document.querySelector('input[name="budget"]:checked')?.value || null,
+      required_by: document.getElementById('requiredBy').value || null,
+      delivery_city: document.getElementById('deliveryCity').value.trim() || null,
+      status: 'pending'
+    });
+
+    if (error) throw error;
+
+    alert.className = 'form-alert success';
+    alert.textContent = '🎉 Your custom order request has been submitted! We\'ll contact you within 24 hours with a quote.';
+    document.getElementById('customForm').reset();
+    document.querySelectorAll('.type-option').forEach(l => l.classList.remove('selected'));
+    document.getElementById('photoPreviews').innerHTML = '';
+    uploadedFiles = [];
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } catch (err) {
+    alert.className = 'form-alert error';
+    alert.textContent = 'Something went wrong: ' + err.message;
+  } finally {
+    btn.disabled = false;
+    document.getElementById('submitText').textContent = '✨ Submit Custom Order Request';
+  }
+});
+</script>
+</body>
+</html>

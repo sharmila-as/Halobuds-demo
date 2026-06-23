@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Cart — Halo Buds</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Great+Vibes&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/main.css">
+<style>
+.page-hero { background: linear-gradient(135deg, #f8f5ff 0%, #fdf2f8 100%); padding: 3rem 0 2rem; text-align: center; }
+.page-hero .script-title { font-family: 'Great Vibes', cursive; font-size: 2rem; color: var(--purple-brand); display: block; }
+.page-hero h1 { font-family: 'Cormorant Garamond', serif; font-size: 2.5rem; font-weight: 400; color: var(--text-dark); margin: 0.25rem 0; }
+.page-hero .breadcrumb { font-family: 'Jost', sans-serif; font-size: 0.85rem; color: var(--text-light); margin-top: 0.5rem; }
+.page-hero .breadcrumb a { color: var(--purple-brand); text-decoration: none; }
+.cart-layout { display: grid; grid-template-columns: 1fr 380px; gap: 2rem; padding: 3rem 0; }
+.cart-items { }
+.cart-header { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 40px; gap: 1rem; padding: 0.75rem 1.5rem; background: var(--purple-pale); border-radius: 12px; font-family: 'Jost', sans-serif; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-medium); margin-bottom: 1rem; }
+.cart-item { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 40px; gap: 1rem; align-items: center; padding: 1.25rem 1.5rem; background: white; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 1rem; transition: box-shadow 0.2s; }
+.cart-item:hover { box-shadow: 0 4px 20px rgba(107,63,160,0.08); }
+.cart-product { display: flex; align-items: center; gap: 1rem; }
+.cart-product-img { width: 80px; height: 80px; border-radius: 10px; object-fit: cover; background: var(--purple-pale); flex-shrink: 0; }
+.cart-product-img-placeholder { width: 80px; height: 80px; border-radius: 10px; background: linear-gradient(135deg, var(--purple-pale), #fce7f3); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+.cart-product-name { font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; font-weight: 600; color: var(--text-dark); text-decoration: none; display: block; margin-bottom: 0.25rem; }
+.cart-product-name:hover { color: var(--purple-brand); }
+.cart-product-variant { font-family: 'Jost', sans-serif; font-size: 0.8rem; color: var(--text-light); }
+.cart-product-custom { font-family: 'Jost', sans-serif; font-size: 0.78rem; color: var(--purple-brand); margin-top: 0.25rem; font-style: italic; }
+.cart-price { font-family: 'Jost', sans-serif; font-size: 0.95rem; color: var(--text-medium); }
+.qty-control { display: flex; align-items: center; gap: 0; border: 1.5px solid var(--border); border-radius: 8px; overflow: hidden; width: fit-content; }
+.qty-btn { width: 32px; height: 32px; border: none; background: white; cursor: pointer; font-size: 1rem; color: var(--text-dark); transition: background 0.2s; display: flex; align-items: center; justify-content: center; }
+.qty-btn:hover { background: var(--purple-pale); }
+.qty-num { width: 36px; height: 32px; border: none; border-left: 1.5px solid var(--border); border-right: 1.5px solid var(--border); text-align: center; font-family: 'Jost', sans-serif; font-size: 0.9rem; color: var(--text-dark); background: white; }
+.cart-total { font-family: 'Jost', sans-serif; font-size: 0.95rem; font-weight: 600; color: var(--purple-brand); }
+.remove-btn { width: 32px; height: 32px; border: none; background: none; cursor: pointer; color: var(--text-light); font-size: 1.1rem; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+.remove-btn:hover { background: #fff5f5; color: #e53e3e; }
+.cart-empty { text-align: center; padding: 5rem 2rem; }
+.cart-empty-icon { font-size: 4rem; margin-bottom: 1rem; }
+.cart-empty h2 { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 400; color: var(--text-dark); margin-bottom: 0.75rem; }
+.cart-empty p { font-family: 'Jost', sans-serif; font-size: 0.95rem; color: var(--text-light); margin-bottom: 2rem; }
+.order-summary { background: white; border-radius: 20px; border: 1px solid var(--border); padding: 2rem; position: sticky; top: 100px; height: fit-content; }
+.order-summary h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 400; color: var(--text-dark); margin-bottom: 1.5rem; }
+.summary-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; font-family: 'Jost', sans-serif; font-size: 0.9rem; color: var(--text-medium); border-bottom: 1px solid var(--border-light); }
+.summary-row:last-of-type { border-bottom: none; }
+.summary-row.total { font-size: 1rem; font-weight: 600; color: var(--text-dark); padding-top: 0.75rem; border-top: 2px solid var(--border); }
+.summary-row .value { color: var(--text-dark); }
+.summary-row .value.green { color: #48bb78; }
+.coupon-section { margin: 1.25rem 0; }
+.coupon-section label { font-family: 'Jost', sans-serif; font-size: 0.8rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-medium); display: block; margin-bottom: 0.5rem; }
+.coupon-input-row { display: flex; gap: 0.5rem; }
+.coupon-input-row input { flex: 1; padding: 0.75rem 1rem; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Jost', sans-serif; font-size: 0.9rem; outline: none; transition: border-color 0.2s; }
+.coupon-input-row input:focus { border-color: var(--purple-brand); }
+.btn-coupon { padding: 0.75rem 1.25rem; background: var(--purple-pale); color: var(--purple-brand); border: 1.5px solid var(--purple-brand); border-radius: 10px; font-family: 'Jost', sans-serif; font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+.btn-coupon:hover { background: var(--purple-brand); color: white; }
+.coupon-msg { font-family: 'Jost', sans-serif; font-size: 0.82rem; margin-top: 0.4rem; }
+.coupon-msg.success { color: #48bb78; }
+.coupon-msg.error { color: #e53e3e; }
+.btn-checkout { display: block; width: 100%; padding: 1rem; background: var(--purple-brand); color: white; border: none; border-radius: 12px; font-family: 'Jost', sans-serif; font-size: 1rem; font-weight: 500; letter-spacing: 0.05em; cursor: pointer; transition: all 0.3s; text-align: center; text-decoration: none; margin-top: 1.25rem; }
+.btn-checkout:hover { background: var(--purple-deep); box-shadow: 0 8px 25px rgba(107,63,160,0.35); transform: translateY(-1px); }
+.btn-checkout:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.trust-badges { display: flex; justify-content: center; gap: 1.25rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-light); }
+.trust-badge { text-align: center; font-family: 'Jost', sans-serif; font-size: 0.72rem; color: var(--text-light); }
+.trust-badge .icon { font-size: 1.1rem; display: block; margin-bottom: 0.2rem; }
+.continue-link { text-align: center; margin-top: 1rem; }
+.continue-link a { font-family: 'Jost', sans-serif; font-size: 0.85rem; color: var(--purple-brand); text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem; }
+@media (max-width: 900px) {
+  .cart-layout { grid-template-columns: 1fr; }
+  .cart-header { display: none; }
+  .cart-item { grid-template-columns: 1fr; gap: 0.75rem; }
+  .cart-item > div { display: flex; justify-content: space-between; align-items: center; }
+  .order-summary { position: static; }
+}
+</style>
+</head>
+<body>
+<!-- Header -->
+<header class="site-header" id="siteHeader">
+  <div class="container">
+    <div class="header-inner">
+      <a href="../index.html" class="logo">
+        <div class="logo-mark">HB</div>
+        <div class="logo-text"><span class="logo-name">Halo Buds</span><span class="logo-tagline">Fully Handmade & Customized</span></div>
+      </a>
+      <nav class="main-nav">
+        <a href="../index.html">Home</a>
+        <a href="shop.html">Shop</a>
+        <a href="custom-order.html">Custom Order</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+      <div class="header-actions">
+        <button class="icon-btn" onclick="window.location.href='../pages/search.html'" aria-label="Search">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        </button>
+        <button class="icon-btn" onclick="window.location.href='wishlist.html'" aria-label="Wishlist">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
+        <button class="icon-btn active" onclick="window.location.href='cart.html'" aria-label="Cart">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          <span class="cart-badge" id="cartCount">0</span>
+        </button>
+        <a href="account.html" class="icon-btn" aria-label="Account">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="page-hero">
+  <div class="container">
+    <span class="script-title">Your selection</span>
+    <h1>Shopping Cart</h1>
+    <div class="breadcrumb"><a href="../index.html">Home</a> / Cart</div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="cart-layout" id="cartLayout">
+    <!-- Cart Items -->
+    <div class="cart-items" id="cartItemsSection">
+      <div id="cartItemsList"></div>
+    </div>
+    <!-- Order Summary -->
+    <div class="order-summary">
+      <h2>Order Summary</h2>
+      <div class="summary-row"><span>Subtotal</span><span class="value" id="subtotalVal">₹0</span></div>
+      <div class="summary-row"><span>Shipping</span><span class="value" id="shippingVal">Calculated at checkout</span></div>
+      <div class="summary-row" id="discountRow" style="display:none"><span>Discount</span><span class="value green" id="discountVal">-₹0</span></div>
+      <div class="summary-row total"><span>Total</span><span id="totalVal">₹0</span></div>
+
+      <div class="coupon-section">
+        <label>Promo Code</label>
+        <div class="coupon-input-row">
+          <input type="text" id="couponInput" placeholder="Enter code" style="text-transform:uppercase">
+          <button class="btn-coupon" id="couponBtn">Apply</button>
+        </div>
+        <div class="coupon-msg" id="couponMsg"></div>
+      </div>
+
+      <a href="checkout.html" class="btn-checkout" id="checkoutBtn">Proceed to Checkout →</a>
+
+      <div class="trust-badges">
+        <div class="trust-badge"><span class="icon">🔒</span>Secure</div>
+        <div class="trust-badge"><span class="icon">↩️</span>Easy Returns</div>
+        <div class="trust-badge"><span class="icon">🚚</span>Free Shipping ₹999+</div>
+      </div>
+
+      <div class="continue-link"><a href="shop.html">← Continue Shopping</a></div>
+    </div>
+  </div>
+
+  <div id="emptyCart" style="display:none">
+    <div class="cart-empty">
+      <div class="cart-empty-icon">🛍️</div>
+      <h2>Your cart is empty</h2>
+      <p>Looks like you haven't added anything yet. Explore our handmade collection!</p>
+      <a href="shop.html" class="btn-primary">Browse Products</a>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-bottom"><p>© 2025 Halo Buds. All rights reserved.</p></div>
+  </div>
+</footer>
+
+<script type="module">
+import { Cart, Utils } from '../js/config.js';
+
+let cartItems = [];
+let couponDiscount = 0;
+let couponCode = '';
+const SHIPPING_THRESHOLD = 999;
+const SHIPPING_COST = 80;
+
+async function loadCart() {
+  cartItems = await Cart.get();
+  document.getElementById('cartCount').textContent = cartItems.reduce((s,i) => s + i.quantity, 0);
+  renderCart();
+}
+
+function renderCart() {
+  const list = document.getElementById('cartItemsList');
+  if (!cartItems.length) {
+    document.getElementById('cartLayout').style.display = 'none';
+    document.getElementById('emptyCart').style.display = 'block';
+    return;
+  }
+
+  const header = `<div class="cart-header"><span>Product</span><span>Price</span><span>Quantity</span><span>Total</span><span></span></div>`;
+  const rows = cartItems.map(item => {
+    const price = item.sale_price || item.price;
+    const total = price * item.quantity;
+    const customInfo = item.custom_name ? `✏️ Custom: ${item.custom_name}` : (item.custom_message ? `✉️ "${item.custom_message.slice(0,30)}..."` : '');
+    return `
+    <div class="cart-item" data-id="${item.id}">
+      <div class="cart-product">
+        ${item.image_url ? `<img src="${item.image_url}" alt="${item.product_name}" class="cart-product-img">` : `<div class="cart-product-img-placeholder">🌸</div>`}
+        <div>
+          <a href="product.html?slug=${item.slug}" class="cart-product-name">${item.product_name}</a>
+          ${item.variant_name ? `<div class="cart-product-variant">${item.variant_name}</div>` : ''}
+          ${customInfo ? `<div class="cart-product-custom">${customInfo}</div>` : ''}
+        </div>
+      </div>
+      <div class="cart-price">${Utils.formatPrice(price)}</div>
+      <div>
+        <div class="qty-control">
+          <button class="qty-btn" onclick="changeQty('${item.id}', ${item.quantity - 1})">−</button>
+          <input type="number" class="qty-num" value="${item.quantity}" min="1" max="99" onchange="changeQty('${item.id}', this.value)">
+          <button class="qty-btn" onclick="changeQty('${item.id}', ${item.quantity + 1})">+</button>
+        </div>
+      </div>
+      <div class="cart-total">${Utils.formatPrice(total)}</div>
+      <button class="remove-btn" onclick="removeItem('${item.id}')" title="Remove">✕</button>
+    </div>`;
+  }).join('');
+
+  list.innerHTML = header + rows;
+  updateSummary();
+}
+
+function updateSummary() {
+  const subtotal = cartItems.reduce((s, i) => s + (i.sale_price || i.price) * i.quantity, 0);
+  const shipping = subtotal >= SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
+  const total = subtotal - couponDiscount + shipping;
+
+  document.getElementById('subtotalVal').textContent = Utils.formatPrice(subtotal);
+  document.getElementById('shippingVal').textContent = shipping === 0 ? '🎉 FREE' : Utils.formatPrice(shipping);
+  document.getElementById('totalVal').textContent = Utils.formatPrice(total);
+
+  if (couponDiscount > 0) {
+    document.getElementById('discountRow').style.display = 'flex';
+    document.getElementById('discountVal').textContent = `-${Utils.formatPrice(couponDiscount)}`;
+  }
+
+  // Save for checkout
+  sessionStorage.setItem('cartSummary', JSON.stringify({ subtotal, shipping, couponDiscount, couponCode, total }));
+}
+
+window.changeQty = async (id, qty) => {
+  qty = parseInt(qty);
+  if (qty < 1) { removeItem(id); return; }
+  if (qty > 99) return;
+  await Cart.updateQuantity(id, qty);
+  cartItems = cartItems.map(i => i.id === id ? {...i, quantity: qty} : i);
+  renderCart();
+};
+
+window.removeItem = async (id) => {
+  await Cart.remove(id);
+  cartItems = cartItems.filter(i => i.id !== id);
+  document.getElementById('cartCount').textContent = cartItems.reduce((s,i) => s + i.quantity, 0);
+  renderCart();
+};
+
+// Coupon
+const VALID_COUPONS = { 'HALO10': 10, 'WELCOME15': 15, 'SAVE20': 20 };
+
+document.getElementById('couponBtn').addEventListener('click', () => {
+  const code = document.getElementById('couponInput').value.trim().toUpperCase();
+  const msg = document.getElementById('couponMsg');
+  const subtotal = cartItems.reduce((s, i) => s + (i.sale_price || i.price) * i.quantity, 0);
+
+  if (VALID_COUPONS[code]) {
+    const pct = VALID_COUPONS[code];
+    couponDiscount = Math.round(subtotal * pct / 100);
+    couponCode = code;
+    msg.className = 'coupon-msg success';
+    msg.textContent = `🎉 "${code}" applied — ${pct}% off (−${Utils.formatPrice(couponDiscount)})`;
+    updateSummary();
+  } else {
+    msg.className = 'coupon-msg error';
+    msg.textContent = 'Invalid or expired coupon code.';
+    couponDiscount = 0;
+    updateSummary();
+  }
+});
+
+loadCart();
+</script>
+</body>
+</html>

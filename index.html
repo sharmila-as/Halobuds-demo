@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Halo Buds — Fully Handmade & Customized</title>
+  <meta name="description" content="Discover bespoke handcrafted floral accessories — hair halos, scrunchies, bridal crowns & personalized gifts. Made with love, delivered with care.">
+  <meta property="og:title" content="Halo Buds — Fully Handmade & Customized">
+  <meta property="og:description" content="Bespoke handcrafted floral accessories for every milestone moment.">
+  <meta property="og:image" content="assets/og-image.jpg">
+
+  <!-- Supabase CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+
+  <style>
+    /* Hero floral accent */
+    .hero-floral {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: 40%;
+      max-width: 500px;
+      opacity: 0.12;
+      pointer-events: none;
+    }
+
+    /* Trust bar */
+    .trust-bar {
+      background: var(--purple-pale);
+      padding: var(--space-3) 0;
+      border-bottom: 1px solid rgba(196,168,224,0.2);
+    }
+
+    .trust-items {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-8);
+      flex-wrap: wrap;
+    }
+
+    .trust-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: var(--text-sm);
+      color: var(--purple-deep);
+      font-weight: 500;
+    }
+
+    .trust-item span:first-child {
+      font-size: 1rem;
+    }
+
+    .header-logo-mark img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+    /* Products tabs */
+    .products-tabs {
+      display: flex;
+      gap: var(--space-2);
+      justify-content: center;
+      margin-bottom: var(--space-8);
+      flex-wrap: wrap;
+    }
+
+    .products-tab {
+      padding: 0.5rem 1.5rem;
+      border-radius: var(--radius-full);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      cursor: pointer;
+      border: 1.5px solid var(--purple-soft);
+      color: var(--grey-600);
+      background: transparent;
+      transition: all var(--transition-fast);
+      letter-spacing: 0.04em;
+    }
+
+    .products-tab.active {
+      background: var(--purple-brand);
+      border-color: var(--purple-brand);
+      color: white;
+    }
+
+    .products-tab:hover:not(.active) {
+      border-color: var(--purple-brand);
+      color: var(--purple-brand);
+    }
+
+    /* Stats section */
+    .stats-section {
+      background: var(--white);
+      padding: var(--space-16) 0;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-8);
+      text-align: center;
+    }
+
+    .stat-number {
+      font-family: var(--font-display);
+      font-size: var(--text-5xl);
+      font-weight: 300;
+      color: var(--purple-brand);
+      line-height: 1;
+      margin-bottom: var(--space-2);
+    }
+
+    .stat-label {
+      font-size: var(--text-sm);
+      color: var(--grey-500);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 768px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); gap: var(--space-6); }
+      .trust-items { gap: var(--space-4); }
+      .trust-item span:last-child { font-size: var(--text-xs); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ============================================
+     TRUST BAR
+     ============================================ -->
+<div class="trust-bar">
+  <div class="container">
+    <div class="trust-items">
+      <div class="trust-item"><span>🚚</span><span>Free shipping above ₹999</span></div>
+      <div class="trust-item"><span>✋</span><span>100% handmade</span></div>
+      <div class="trust-item"><span>🎨</span><span>Fully customizable</span></div>
+      <div class="trust-item"><span>💚</span><span>Eco-friendly materials</span></div>
+      <div class="trust-item"><span>📦</span><span>Gifting packaging</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================
+     HEADER
+     ============================================ -->
+<header class="header" id="header">
+  <div class="container">
+    <div class="header-inner">
+      <!-- Logo -->
+      <a href="index.html" class="header-logo">
+        <div class="header-logo-mark">
+            <img src="images/Halobuds_Logo.jpg" alt="Halo Buds Logo">
+        </div>
+        <div class="header-logo-text">
+          <span class="header-logo-name">HALO BUDS</span>
+          <span class="header-logo-tagline">Handmade & Customized</span>
+        </div>
+      </a>
+
+      <!-- Nav -->
+      <nav class="header-nav">
+        <a href="index.html" class="header-nav-link active">Home</a>
+        <a href="pages/shop.html" class="header-nav-link">Shop</a>
+        <a href="pages/custom-order.html" class="header-nav-link">Custom Order</a>
+        <a href="pages/about.html" class="header-nav-link">About</a>
+        <a href="pages/contact.html" class="header-nav-link">Contact</a>
+      </nav>
+
+      <!-- Actions -->
+      <div class="header-actions">
+        <a href="pages/search.html" class="header-action-btn" title="Search">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+        </a>
+        <a href="pages/wishlist.html" class="header-action-btn" title="Wishlist">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+        </a>
+        <a href="pages/cart.html" class="header-action-btn" title="Cart" style="position:relative;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+          </svg>
+          <span class="cart-badge">0</span>
+        </a>
+        <a href="pages/account.html" class="header-action-btn" title="Account" id="accountBtn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+        </a>
+        <!-- Mobile toggle -->
+        <div class="header-mobile-toggle" id="mobileToggle">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobileMenu">
+  <div class="mobile-menu-overlay" id="mobileOverlay"></div>
+  <div class="mobile-menu-panel">
+    <div class="mobile-menu-header">
+      <div style="font-family:var(--font-display);font-size:1.25rem;color:var(--purple-deep);font-weight:500;">Menu</div>
+      <div class="mobile-menu-close" id="mobileClose">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </div>
+    </div>
+    <div class="mobile-menu-links">
+      <a href="index.html" class="mobile-menu-link">Home</a>
+      <a href="pages/shop.html" class="mobile-menu-link">Shop All</a>
+      <a href="pages/shop.html?category=floral-crowns" class="mobile-menu-link">Floral Crowns</a>
+      <a href="pages/shop.html?category=bridal-collection" class="mobile-menu-link">Bridal</a>
+      <a href="pages/shop.html?category=gift-sets" class="mobile-menu-link">Gift Sets</a>
+      <a href="pages/custom-order.html" class="mobile-menu-link">Custom Order ✨</a>
+      <a href="pages/wishlist.html" class="mobile-menu-link">Wishlist</a>
+      <a href="pages/account.html" class="mobile-menu-link">My Account</a>
+      <a href="pages/contact.html" class="mobile-menu-link">Contact</a>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================
+     HERO
+     ============================================ -->
+<section class="hero">
+  <div class="hero-slider" id="heroSlider">
+    <!-- Slides generated by JS -->
+  </div>
+
+  <div class="hero-arrows">
+    <button class="hero-arrow" id="heroPrev">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M15 18l-6-6 6-6"/>
+      </svg>
+    </button>
+    <button class="hero-arrow" id="heroNext">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 18l6-6-6-6"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="hero-nav" id="heroDots"></div>
+</section>
+
+<!-- ============================================
+     STATS
+     ============================================ -->
+<section class="stats-section">
+  <div class="container">
+    <div class="stats-grid stagger-children">
+      <div>
+        <div class="stat-number" data-count="2500">2500+</div>
+        <div class="stat-label">Happy Customers</div>
+      </div>
+      <div>
+        <div class="stat-number" data-count="150">150+</div>
+        <div class="stat-label">Unique Designs</div>
+      </div>
+      <div>
+        <div class="stat-number" data-count="500">500+</div>
+        <div class="stat-label">Custom Orders</div>
+      </div>
+      <div>
+        <div class="stat-number" data-count="4.9">4.9★</div>
+        <div class="stat-label">Average Rating</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     CATEGORIES
+     ============================================ -->
+<section class="section" style="background: var(--cream);">
+  <div class="container">
+    <div class="section-header fade-up">
+      <span class="section-eyebrow">Find Your Style</span>
+      <h2 class="section-title">Shop by Category</h2>
+      <div class="section-divider"><span class="section-divider-heart">❤</span></div>
+      <p class="section-subtitle">From everyday elegance to bridal dreams — every piece handcrafted just for you.</p>
+    </div>
+    <div class="categories-grid stagger-children" id="categoriesGrid">
+      <!-- Loaded by JS -->
+      <div class="category-card" style="height:120px;" class="skeleton"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     FEATURED PRODUCTS
+     ============================================ -->
+<section class="section">
+  <div class="container">
+    <div class="section-header fade-up">
+      <span class="section-eyebrow">Our Collection</span>
+      <h2 class="section-title">Handpicked for You</h2>
+      <div class="section-divider"><span class="section-divider-heart">❤</span></div>
+    </div>
+
+    <div class="products-tabs">
+      <button class="products-tab active" data-tab="featured">Featured</button>
+      <button class="products-tab" data-tab="bestseller">Best Sellers</button>
+      <button class="products-tab" data-tab="new">New Arrivals</button>
+    </div>
+
+    <div class="products-grid" id="featuredProducts">
+      <!-- Loaded by JS -->
+    </div>
+
+    <div style="text-align:center; margin-top: var(--space-10);">
+      <a href="pages/shop.html" class="btn btn-outline btn-lg">View All Products</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     CUSTOM ORDER
+     ============================================ -->
+<section class="custom-section section-lg">
+  <div class="container" style="position:relative; z-index:1;">
+    <div class="section-header">
+      <span class="section-eyebrow" style="color: var(--pink-blush);">Make It Yours</span>
+      <h2 class="section-title" style="color: white;">Completely Customized,<br>Made Just for You</h2>
+      <div class="section-divider" style="--purple-soft: rgba(255,255,255,0.3);">
+        <span style="color:var(--pink-blush);">❤</span>
+      </div>
+      <p class="section-subtitle" style="color: rgba(255,255,255,0.75);">
+        Tell us your vision and our artisans bring it to life. Every detail, every bloom — crafted with intention.
+      </p>
+    </div>
+
+    <div class="custom-features">
+      <div class="custom-feature">
+        <span class="custom-feature-icon">💌</span>
+        <div class="custom-feature-title">Add a Name</div>
+        <div class="custom-feature-desc">Personalize with a name, initials, or meaningful word</div>
+      </div>
+      <div class="custom-feature">
+        <span class="custom-feature-icon">📝</span>
+        <div class="custom-feature-title">Custom Message</div>
+        <div class="custom-feature-desc">Include a heartfelt message on the gift card</div>
+      </div>
+      <div class="custom-feature">
+        <span class="custom-feature-icon">📸</span>
+        <div class="custom-feature-title">Photo Upload</div>
+        <div class="custom-feature-desc">Send reference photos for color, style & design inspiration</div>
+      </div>
+      <div class="custom-feature">
+        <span class="custom-feature-icon">✍️</span>
+        <div class="custom-feature-title">Special Instructions</div>
+        <div class="custom-feature-desc">Tell us exactly what you need — we'll make it happen</div>
+      </div>
+    </div>
+
+    <div style="text-align:center; margin-top: var(--space-10);">
+      <a href="pages/custom-order.html" class="btn btn-glass btn-lg">Start Your Custom Order</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     REVIEWS
+     ============================================ -->
+<section class="section" style="background: var(--cream);">
+  <div class="container">
+    <div class="section-header fade-up">
+      <span class="section-eyebrow">Love Letters</span>
+      <h2 class="section-title">What Our Customers Say</h2>
+      <div class="section-divider"><span class="section-divider-heart">❤</span></div>
+    </div>
+    <div class="reviews-grid stagger-children" id="reviewsGrid">
+      <!-- Loaded by JS -->
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     INSTAGRAM GALLERY
+     ============================================ -->
+<section class="section">
+  <div class="container">
+    <div class="section-header fade-up">
+      <span class="section-eyebrow">Instagram</span>
+      <h2 class="section-title">@halobuds</h2>
+      <div class="section-divider"><span class="section-divider-heart">❤</span></div>
+      <p class="section-subtitle">Follow our journey of handcrafted beauty</p>
+    </div>
+    <div class="gallery-grid stagger-children" id="galleryGrid">
+      <!-- Loaded by JS -->
+    </div>
+    <div style="text-align:center; margin-top:var(--space-8);">
+      <a href="https://instagram.com/halobuds" target="_blank" class="btn btn-outline">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+          <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+        </svg>
+        Follow on Instagram
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     FAQ
+     ============================================ -->
+<section class="section" style="background: var(--cream);">
+  <div class="container">
+    <div class="section-header fade-up">
+      <span class="section-eyebrow">Have Questions?</span>
+      <h2 class="section-title">Frequently Asked</h2>
+      <div class="section-divider"><span class="section-divider-heart">❤</span></div>
+    </div>
+    <div class="faq-list" id="faqList">
+      <!-- Loaded by JS -->
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     NEWSLETTER
+     ============================================ -->
+<section class="section">
+  <div class="container">
+    <div class="newsletter fade-up">
+      <span class="section-eyebrow" style="color: var(--purple-mid);">Stay in the loop</span>
+      <h2 class="section-title" style="color: var(--purple-deep);">Join the Halo Buds Family</h2>
+      <p class="section-subtitle">Get early access to new collections, exclusive offers, and behind-the-scenes peeks at what we're crafting.</p>
+      <form class="newsletter-form" id="newsletterForm">
+        <input type="email" class="form-input" placeholder="Your email address" required id="newsletterEmail">
+        <button type="submit" class="btn btn-primary">Subscribe</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     FOOTER
+     ============================================ -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <!-- Brand -->
+      <div>
+        <div class="footer-brand-name">Halo Buds</div>
+        <div class="footer-brand-tagline">Fully Handmade & Customized</div>
+        <p class="footer-brand-desc">Each piece we create is a small act of love — handcrafted with care, infused with warmth, and made to make someone feel truly special.</p>
+        <div class="footer-social">
+          <a href="https://instagram.com/halobuds" class="footer-social-link" target="_blank" title="Instagram">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+            </svg>
+          </a>
+          <a href="https://facebook.com/halobuds" class="footer-social-link" target="_blank" title="Facebook">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+            </svg>
+          </a>
+          <a href="https://wa.me/919876543210" class="footer-social-link" target="_blank" title="WhatsApp">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+            </svg>
+          </a>
+          <a href="https://pinterest.com/halobuds" class="footer-social-link" target="_blank" title="Pinterest">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2C6.48 2 2 6.48 2 12c0 4.24 2.65 7.86 6.39 9.29-.09-.78-.17-1.98.03-2.83.19-.78 1.28-5.44 1.28-5.44s-.33-.65-.33-1.62c0-1.52.88-2.65 1.97-2.65.93 0 1.38.7 1.38 1.54 0 .94-.6 2.34-.91 3.64-.26 1.09.54 1.97 1.61 1.97 1.93 0 3.32-2.47 3.32-5.39 0-2.22-1.49-3.88-4.18-3.88-3.04 0-4.94 2.27-4.94 4.8 0 .87.25 1.49.65 1.97.18.22.21.3.14.55-.05.17-.15.58-.2.74-.06.25-.25.34-.46.25-1.32-.54-1.94-1.99-1.94-3.62 0-2.68 2.26-5.9 6.74-5.9 3.6 0 5.96 2.6 5.96 5.4 0 3.7-2.05 6.47-5.07 6.47-1.01 0-1.97-.55-2.3-1.17l-.64 2.51c-.21.83-.74 1.87-1.15 2.56.88.27 1.81.41 2.77.41 5.52 0 10-4.48 10-10S17.52 2 12 2z"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Shop -->
+      <div>
+        <h4 class="footer-col-title">Shop</h4>
+        <div class="footer-links">
+          <a href="pages/shop.html" class="footer-link">All Products</a>
+          <a href="pages/shop.html?filter=featured" class="footer-link">Featured</a>
+          <a href="pages/shop.html?filter=bestseller" class="footer-link">Best Sellers</a>
+          <a href="pages/shop.html?filter=new" class="footer-link">New Arrivals</a>
+          <a href="pages/custom-order.html" class="footer-link">Custom Orders</a>
+          <a href="pages/shop.html?category=gift-sets" class="footer-link">Gift Sets</a>
+        </div>
+      </div>
+
+      <!-- Help -->
+      <div>
+        <h4 class="footer-col-title">Help</h4>
+        <div class="footer-links">
+          <a href="pages/about.html" class="footer-link">About Us</a>
+          <a href="pages/contact.html" class="footer-link">Contact Us</a>
+          <a href="pages/track-order.html" class="footer-link">Track Order</a>
+          <a href="pages/faq.html" class="footer-link">FAQ</a>
+          <a href="pages/shipping-policy.html" class="footer-link">Shipping Policy</a>
+          <a href="pages/returns.html" class="footer-link">Return Policy</a>
+          <a href="pages/privacy.html" class="footer-link">Privacy Policy</a>
+        </div>
+      </div>
+
+      <!-- Contact -->
+      <div>
+        <h4 class="footer-col-title">Contact</h4>
+        <div class="footer-contact-item">
+          <span class="footer-contact-icon">📧</span>
+          <span>hello@halobuds.in</span>
+        </div>
+        <div class="footer-contact-item">
+          <span class="footer-contact-icon">📱</span>
+          <span>+91 98765 43210</span>
+        </div>
+        <div class="footer-contact-item">
+          <span class="footer-contact-icon">📍</span>
+          <span>Chennai, Tamil Nadu, India</span>
+        </div>
+        <div class="footer-contact-item">
+          <span class="footer-contact-icon">🕐</span>
+          <span>Mon–Sat, 10am–6pm IST</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom -->
+    <div class="footer-bottom">
+      <p class="footer-bottom-text">© 2025 Halo Buds. Handcrafted with ❤ in Chennai, India. All rights reserved.</p>
+      <div class="footer-payment-icons">
+        <div class="payment-icon">UPI</div>
+        <div class="payment-icon">Razorpay</div>
+        <div class="payment-icon">COD</div>
+        <div class="payment-icon">Visa</div>
+        <div class="payment-icon">Mastercard</div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Scripts -->
+<script src="js/config.js"></script>
+<script>
+// ============================================
+// HOMEPAGE SCRIPT
+// ============================================
+
+document.addEventListener('DOMContentLoaded', async () => {
+  initHeader();
+  initMobileMenu();
+  initHero();
+  initScrollAnimations();
+  loadCategories();
+  loadFeaturedProducts('featured');
+  loadReviews();
+  loadGallery();
+  loadFAQs();
+  initProductTabs();
+  initNewsletter();
+  initFAQAccordion();
+});
+
+// ---- Header scroll effect ----
+function initHeader() {
+  const header = document.getElementById('header');
+  window.addEventListener('scroll', () => {
+    header.classList.toggle('scrolled', window.scrollY > 20);
+  });
+
+  // Account btn check
+  Auth.getUser().then(user => {
+    const btn = document.getElementById('accountBtn');
+    if (btn) btn.href = user ? 'pages/account.html' : 'pages/login.html';
+  });
+}
+
+// ---- Mobile Menu ----
+function initMobileMenu() {
+  const toggle = document.getElementById('mobileToggle');
+  const menu = document.getElementById('mobileMenu');
+  const overlay = document.getElementById('mobileOverlay');
+  const close = document.getElementById('mobileClose');
+
+  const open = () => menu.classList.add('open');
+  const closeMenu = () => menu.classList.remove('open');
+
+  toggle?.addEventListener('click', open);
+  overlay?.addEventListener('click', closeMenu);
+  close?.addEventListener('click', closeMenu);
+}
+
+// ---- Hero Slider ----
+let heroSlides = [];
+let currentHeroSlide = 0;
+let heroInterval;
+
+async function initHero() {
+  const { data: banners } = await Banners.getActive();
+
+  heroSlides = banners.length > 0 ? banners : [
+    { title: 'Handcrafted with Love', subtitle: 'Each piece tells a story', description: 'Bespoke floral accessories for every milestone moment — made with heart, delivered with care.', image_url: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1600', button_text: 'Shop Collection', button_link: 'pages/shop.html' },
+    { title: 'Bridal Dreams', subtitle: 'Your perfect crown awaits', description: 'Bespoke bridal accessories, handcrafted for your most special day. Every bride deserves to bloom.', image_url: 'https://images.unsplash.com/photo-1525088553748-01d6e210e00b?w=1600', button_text: 'Explore Bridal', button_link: 'pages/shop.html?category=bridal-collection' },
+    { title: 'Mother & Daughter Magic', subtitle: 'Matching moments, forever treasured', description: 'Matching sets that celebrate the most beautiful bond. Handcrafted in soft lavender and blush.', image_url: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=1600', button_text: 'Shop Sets', button_link: 'pages/shop.html?category=gift-sets' }
+  ];
+
+  const slider = document.getElementById('heroSlider');
+  const dots = document.getElementById('heroDots');
+
+  slider.innerHTML = heroSlides.map((slide, i) => `
+    <div class="hero-slide ${i === 0 ? 'active' : ''}">
+      <div class="hero-slide-bg" style="background-image: url('${slide.image_url}')"></div>
+      <div class="hero-slide-overlay"></div>
+      <div class="hero-slide-content">
+        <div class="container">
+          <div class="hero-text">
+            <span class="hero-eyebrow">${slide.subtitle || ''}</span>
+            <h1 class="hero-title">${slide.title}</h1>
+            <p class="hero-description">${slide.description || ''}</p>
+            <div class="hero-actions">
+              <a href="${slide.button_link || 'pages/shop.html'}" class="btn btn-primary btn-lg">${slide.button_text || 'Shop Now'}</a>
+              <a href="pages/custom-order.html" class="btn btn-glass btn-lg">Custom Order</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  dots.innerHTML = heroSlides.map((_, i) => `
+    <button class="hero-dot ${i === 0 ? 'active' : ''}" data-i="${i}"></button>
+  `).join('');
+
+  dots.querySelectorAll('.hero-dot').forEach(dot => {
+    dot.addEventListener('click', () => goToSlide(parseInt(dot.dataset.i)));
+  });
+
+  document.getElementById('heroPrev')?.addEventListener('click', () => {
+    goToSlide((currentHeroSlide - 1 + heroSlides.length) % heroSlides.length);
+  });
+  document.getElementById('heroNext')?.addEventListener('click', () => {
+    goToSlide((currentHeroSlide + 1) % heroSlides.length);
+  });
+
+  startAutoPlay();
+}
+
+function goToSlide(index) {
+  const slides = document.querySelectorAll('.hero-slide');
+  const dots = document.querySelectorAll('.hero-dot');
+  slides[currentHeroSlide].classList.remove('active');
+  dots[currentHeroSlide].classList.remove('active');
+  currentHeroSlide = index;
+  slides[currentHeroSlide].classList.add('active');
+  dots[currentHeroSlide].classList.add('active');
+  clearInterval(heroInterval);
+  startAutoPlay();
+}
+
+function startAutoPlay() {
+  heroInterval = setInterval(() => {
+    goToSlide((currentHeroSlide + 1) % heroSlides.length);
+  }, 5000);
+}
+
+// ---- Scroll Animations ----
+function initScrollAnimations() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+  document.querySelectorAll('.fade-up, .stagger-children').forEach(el => observer.observe(el));
+}
+
+// ---- Categories ----
+async function loadCategories() {
+  const { data: cats } = await Categories.getAll();
+  const grid = document.getElementById('categoriesGrid');
+  if (!cats || !grid) return;
+
+  grid.innerHTML = cats.map(cat => `
+    <a href="pages/shop.html?category=${cat.slug}" class="category-card">
+      <span class="category-card-icon">${cat.icon || '🌸'}</span>
+      <span class="category-card-name">${cat.name}</span>
+      <span class="category-card-count">Handcrafted pieces</span>
+    </a>
+  `).join('');
+
+  // Re-observe stagger
+  const stagger = grid.closest('.stagger-children');
+  if (stagger) {
+    stagger.classList.remove('visible');
+    setTimeout(() => {
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+      }, { threshold: 0.1 });
+      observer.observe(stagger);
+    }, 100);
+  }
+}
+
+// ---- Products ----
+async function loadFeaturedProducts(type) {
+  const grid = document.getElementById('featuredProducts');
+  if (!grid) return;
+
+  grid.innerHTML = `<div style="text-align:center;padding:3rem;grid-column:1/-1;"><div class="loading-spinner"></div></div>`;
+
+  const params = {};
+  if (type === 'featured') params.featured = true;
+  else if (type === 'bestseller') params.bestseller = true;
+  else if (type === 'new') params.newArrival = true;
+
+  const { data: products } = await Products.getAll({ ...params, limit: 8 });
+
+  if (!products || products.length === 0) {
+    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><span class="empty-state-icon">🌸</span><p>Products coming soon!</p></div>';
+    return;
+  }
+
+  grid.innerHTML = products.map(p => renderProductCard(p)).join('');
+  initProductCardActions();
+}
+
+function renderProductCard(p) {
+  const discount = p.compare_price ? Math.round((1 - p.price / p.compare_price) * 100) : 0;
+  const stars = renderStars(p.rating || 0);
+  const img = p.images?.[0] || 'https://images.unsplash.com/photo-1519741497674-611481863552?w=800';
+
+  return `
+    <div class="product-card" data-id="${p.id}">
+      <div class="product-card-image-wrap" style="aspect-ratio:4/5;">
+        <img src="${img}" alt="${p.name}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1519741497674-611481863552?w=800'">
+        <div class="product-card-badges">
+          ${p.is_new_arrival ? '<span class="badge badge-new">New</span>' : ''}
+          ${p.is_bestseller ? '<span class="badge badge-bestseller">Bestseller</span>' : ''}
+          ${p.allow_customization ? '<span class="badge badge-custom">✨ Custom</span>' : ''}
+          ${discount > 0 ? `<span class="badge badge-sale">${discount}% off</span>` : ''}
+        </div>
+        <div class="product-card-actions">
+          <button class="product-card-action wishlist-btn" title="Add to wishlist" data-id="${p.id}">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+          </button>
+          <a href="pages/product.html?slug=${p.slug}" class="product-card-action" title="Quick view">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+      <div class="product-card-body">
+        <div class="product-card-category">${p.categories?.name || 'Handmade'}</div>
+        <a href="pages/product.html?slug=${p.slug}">
+          <div class="product-card-name">${p.name}</div>
+        </a>
+        <div class="product-card-rating">
+          <div class="stars">${stars}</div>
+          <span class="rating-count">${p.review_count > 0 ? `(${p.review_count})` : 'New'}</span>
+        </div>
+        <div class="product-card-price">
+          <span class="price-current">${Utils.formatPrice(p.price)}</span>
+          ${p.compare_price ? `<span class="price-compare">${Utils.formatPrice(p.compare_price)}</span>` : ''}
+          ${discount > 0 ? `<span class="price-discount">Save ${discount}%</span>` : ''}
+        </div>
+        <div class="product-card-footer">
+          <button class="btn btn-outline btn-sm add-to-cart-btn" data-id="${p.id}">Add to Cart</button>
+          <a href="pages/product.html?slug=${p.slug}" class="btn btn-primary btn-sm">View</a>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderStars(rating) {
+  return [1,2,3,4,5].map(i => `<span class="star ${i <= Math.round(rating) ? 'filled' : ''}">★</span>`).join('');
+}
+
+function initProductCardActions() {
+  // Add to cart
+  document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const id = btn.dataset.id;
+      btn.textContent = 'Adding...';
+      btn.disabled = true;
+      await Cart.add(id, 1);
+      Utils.showToast('Added to cart! 🛒');
+      btn.textContent = 'Added ✓';
+      setTimeout(() => { btn.textContent = 'Add to Cart'; btn.disabled = false; }, 2000);
+    });
+  });
+
+  // Wishlist
+  document.querySelectorAll('.wishlist-btn').forEach(btn => {
+    const id = btn.dataset.id;
+    Wishlist.isInWishlist(id).then(isIn => { if (isIn) btn.classList.add('active'); });
+
+    btn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const { added } = await Wishlist.toggle(id);
+      btn.classList.toggle('active', added);
+      Utils.showToast(added ? 'Added to wishlist 💜' : 'Removed from wishlist', added ? 'success' : 'info');
+    });
+  });
+}
+
+// ---- Product Tabs ----
+function initProductTabs() {
+  document.querySelectorAll('.products-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.products-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      loadFeaturedProducts(tab.dataset.tab);
+    });
+  });
+}
+
+// ---- Reviews ----
+async function loadReviews() {
+  const grid = document.getElementById('reviewsGrid');
+  if (!grid) return;
+
+  const { data: products } = await Products.getAll({ limit: 1 });
+  const productId = products?.[0]?.id;
+  
+  // Use static reviews for homepage display
+  const staticReviews = [
+    { name: 'Priya M.', initial: 'P', date: '2 weeks ago', rating: 5, title: 'Absolutely breathtaking!', content: 'I ordered the Lavender Dream Halo for my daughter\'s birthday photoshoot and it exceeded every expectation. The quality is impeccable and the packaging was like receiving a luxury gift. Will order again and again!', product: 'Lavender Dream Halo', verified: true },
+    { name: 'Sneha R.', initial: 'S', date: '1 month ago', rating: 5, title: 'Perfect bridal crown!', content: 'The Bridal Bliss Crown was everything I dreamed of and more. The artisans truly listened to every detail I wanted. I cried when I opened the package — it was so beautiful. All my bridesmaids want one now!', product: 'Bridal Bliss Crown', verified: true },
+    { name: 'Kavya L.', initial: 'K', date: '3 weeks ago', rating: 5, title: 'The sweetest gift ever!', content: 'Ordered the Mother-Daughter set as a gift and my sister absolutely loved it! The matching halos for her and her little one were so precious. Fast shipping, gorgeous packaging, and even more beautiful in person.', product: 'Mother-Daughter Gift Set', verified: true },
+    { name: 'Ananya D.', initial: 'A', date: '1 month ago', rating: 5, title: 'My go-to gifting brand!', content: 'Discovered Halo Buds through a friend and I\'ve now ordered 4 times. The silk scrunchie sets are so luxurious and the baby headbands for my niece are adorable. Customer service is warm and responsive too.', product: 'Silk Bow Scrunchie Set', verified: true },
+  ];
+
+  grid.innerHTML = staticReviews.map(r => `
+    <div class="review-card">
+      <div class="review-header">
+        <div class="reviewer-avatar">${r.initial}</div>
+        <div class="reviewer-info">
+          <div class="reviewer-name">${r.name}</div>
+          <div class="reviewer-date">${r.date}</div>
+        </div>
+        ${r.verified ? '<span class="review-verified">✓ Verified</span>' : ''}
+      </div>
+      <div class="review-stars"><div class="stars">${renderStars(r.rating)}</div></div>
+      <div class="review-title">${r.title}</div>
+      <div class="review-content">${r.content}</div>
+      <div class="review-product">Purchased: ${r.product}</div>
+    </div>
+  `).join('');
+}
+
+// ---- Instagram Gallery ----
+async function loadGallery() {
+  const grid = document.getElementById('galleryGrid');
+  if (!grid) return;
+
+  const { data: items } = await supabaseClient
+    .from('instagram_gallery')
+    .select('*')
+    .eq('is_active', true)
+    .order('sort_order')
+    .limit(8);
+
+  const gallery = items?.length ? items : [
+    { image_url: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=600', link: '#' },
+    { image_url: 'https://images.unsplash.com/photo-1595411892234-3e6d9a80c0e9?w=600', link: '#' },
+    { image_url: 'https://images.unsplash.com/photo-1555252585-b0e7811eeeef?w=600', link: '#' },
+    { image_url: 'https://images.unsplash.com/photo-1525088553748-01d6e210e00b?w=600', link: '#' },
+    { image_url: 'https://images.unsplash.com/photo-1594736797933-d0501ba2fe65?w=600', link: '#' },
+    { image_url: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=600', link: '#' },
+    { image_url: 'https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=600', link: '#' },
+    { image_url: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=600', link: '#' },
+  ];
+
+  grid.innerHTML = gallery.slice(0, 8).map(item => `
+    <a href="${item.link || 'https://instagram.com/halobuds'}" class="gallery-item" target="_blank">
+      <img src="${item.image_url}" alt="Halo Buds" loading="lazy">
+      <div class="gallery-item-overlay">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+          <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+        </svg>
+      </div>
+    </a>
+  `).join('');
+}
+
+// ---- FAQs ----
+async function loadFAQs() {
+  const list = document.getElementById('faqList');
+  if (!list) return;
+
+  const { data: faqs } = await supabaseClient
+    .from('faqs')
+    .select('*')
+    .eq('is_active', true)
+    .order('sort_order')
+    .limit(6);
+
+  const items = faqs?.length ? faqs : [
+    { question: 'How long does a custom order take?', answer: 'Custom orders typically take 3-7 business days. Bridal pieces may take up to 10 days. We\'ll confirm the exact timeline when you place your order.' },
+    { question: 'Are the flowers real?', answer: 'We use a mix of dried natural flowers and high-quality silk/fabric flowers. Product descriptions specify which type is used. All materials are selected for beauty and longevity.' },
+    { question: 'Do you ship across India?', answer: 'Yes! We ship pan-India. Free shipping on orders above ₹999. Delivery takes 3-5 business days after dispatch.' },
+    { question: 'What is your return policy?', answer: 'As pieces are handmade and customized, we generally don\'t accept returns. If your item arrives damaged, we\'ll replace or refund it within 48 hours.' },
+  ];
+
+  list.innerHTML = items.map(faq => `
+    <div class="faq-item">
+      <div class="faq-question">
+        <span class="faq-question-text">${faq.question}</span>
+        <span class="faq-icon">+</span>
+      </div>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">${faq.answer}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ---- FAQ Accordion ----
+function initFAQAccordion() {
+  document.addEventListener('click', (e) => {
+    const question = e.target.closest('.faq-question');
+    if (!question) return;
+    const item = question.closest('.faq-item');
+    const answer = item.querySelector('.faq-answer');
+    const isOpen = item.classList.contains('open');
+
+    document.querySelectorAll('.faq-item.open').forEach(openItem => {
+      openItem.classList.remove('open');
+      openItem.querySelector('.faq-answer').style.maxHeight = '0';
+    });
+
+    if (!isOpen) {
+      item.classList.add('open');
+      answer.style.maxHeight = answer.scrollHeight + 'px';
+    }
+  });
+}
+
+// ---- Newsletter ----
+function initNewsletter() {
+  const form = document.getElementById('newsletterForm');
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('newsletterEmail').value;
+    const btn = form.querySelector('button');
+    btn.textContent = 'Subscribing...';
+    btn.disabled = true;
+
+    const { error } = await supabaseClient
+      .from('newsletter_subscribers')
+      .upsert({ email }, { onConflict: 'email' });
+
+    if (error) {
+      Utils.showToast('Something went wrong. Please try again.', 'error');
+    } else {
+      Utils.showToast('Welcome to the Halo Buds family! 💜');
+      form.reset();
+    }
+    btn.textContent = 'Subscribe';
+    btn.disabled = false;
+  });
+}
+</script>
+</body>
+</html>

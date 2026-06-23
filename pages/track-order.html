@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Track Order — Halo Buds</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Great+Vibes&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/main.css">
+<style>
+.page-hero { background: linear-gradient(135deg,#f8f5ff 0%,#fdf2f8 100%); padding:3rem 0 2rem; text-align:center; }
+.page-hero .script-title { font-family:'Great Vibes',cursive; font-size:2rem; color:var(--purple-brand); display:block; }
+.page-hero h1 { font-family:'Cormorant Garamond',serif; font-size:2.5rem; font-weight:400; color:var(--text-dark); margin:.25rem 0; }
+.track-section { padding:3rem 0; }
+.track-box { max-width:560px; margin:0 auto; }
+.search-card { background:white; border-radius:24px; border:1px solid var(--border); padding:2.5rem; margin-bottom:2rem; text-align:center; }
+.search-card h2 { font-family:'Cormorant Garamond',serif; font-size:1.8rem; font-weight:400; color:var(--text-dark); margin-bottom:.5rem; }
+.search-card p { font-family:'Jost',sans-serif; font-size:.9rem; color:var(--text-light); margin-bottom:1.75rem; }
+.track-input-row { display:flex; gap:.75rem; }
+.track-input { flex:1; padding:.9rem 1.1rem; border:1.5px solid var(--border); border-radius:12px; font-family:'Jost',sans-serif; font-size:.95rem; color:var(--text-dark); outline:none; transition:all .25s; }
+.track-input:focus { border-color:var(--purple-brand); box-shadow:0 0 0 3px rgba(107,63,160,.1); }
+.btn-track { padding:.9rem 1.75rem; background:var(--purple-brand); color:white; border:none; border-radius:12px; font-family:'Jost',sans-serif; font-size:.95rem; font-weight:500; cursor:pointer; transition:all .3s; white-space:nowrap; }
+.btn-track:hover { background:var(--purple-deep); transform:translateY(-1px); box-shadow:0 8px 25px rgba(107,63,160,.3); }
+.track-error { background:#fff5f5; border:1px solid #fed7d7; color:#c53030; border-radius:10px; padding:.75rem 1rem; font-family:'Jost',sans-serif; font-size:.875rem; margin-top:.75rem; display:none; }
+.track-error.show { display:block; }
+/* Result */
+.result-card { background:white; border-radius:24px; border:1px solid var(--border); padding:2rem; display:none; }
+.result-card.show { display:block; }
+.result-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.5rem; padding-bottom:1.25rem; border-bottom:1px solid var(--border-light); }
+.result-order-num { font-family:'Cormorant Garamond',serif; font-size:1.5rem; font-weight:600; color:var(--text-dark); }
+.result-date { font-family:'Jost',sans-serif; font-size:.82rem; color:var(--text-light); margin-top:.2rem; }
+.status-badge { padding:.35rem .9rem; border-radius:100px; font-family:'Jost',sans-serif; font-size:.8rem; font-weight:600; }
+.status-pending { background:#fffbeb; color:#92400e; }
+.status-confirmed { background:#eff6ff; color:#1d4ed8; }
+.status-processing { background:#f5f3ff; color:#6d28d9; }
+.status-shipped { background:#ecfeff; color:#0e7490; }
+.status-delivered { background:#f0fdf4; color:#166534; }
+.status-cancelled { background:#fff5f5; color:#c53030; }
+/* Progress bar */
+.progress-section { margin-bottom:2rem; }
+.progress-label { font-family:'Jost',sans-serif; font-size:.78rem; font-weight:500; letter-spacing:.08em; text-transform:uppercase; color:var(--text-light); margin-bottom:1rem; }
+.progress-steps { display:flex; align-items:center; }
+.p-step { display:flex; flex-direction:column; align-items:center; flex:1; }
+.p-dot { width:36px; height:36px; border-radius:50%; border:2px solid var(--border); background:white; display:flex; align-items:center; justify-content:center; font-size:.9rem; position:relative; z-index:1; transition:all .3s; }
+.p-dot.done { background:var(--purple-brand); border-color:var(--purple-brand); color:white; font-size:.75rem; }
+.p-dot.current { border-color:var(--purple-brand); box-shadow:0 0 0 4px rgba(107,63,160,.15); }
+.p-label { font-family:'Jost',sans-serif; font-size:.72rem; color:var(--text-medium); margin-top:.5rem; text-align:center; }
+.p-label.done { color:var(--purple-brand); font-weight:500; }
+.p-line { flex:1; height:2px; background:var(--border); position:relative; top:-10px; transition:background .3s; }
+.p-line.done { background:var(--purple-brand); }
+/* Details */
+.detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem; }
+.detail-item .detail-label { font-family:'Jost',sans-serif; font-size:.75rem; font-weight:500; letter-spacing:.08em; text-transform:uppercase; color:var(--text-light); margin-bottom:.25rem; }
+.detail-item .detail-value { font-family:'Jost',sans-serif; font-size:.9rem; color:var(--text-dark); font-weight:500; }
+.tracking-link { display:inline-flex; align-items:center; gap:.5rem; background:var(--purple-pale); color:var(--purple-brand); padding:.6rem 1.25rem; border-radius:10px; font-family:'Jost',sans-serif; font-size:.875rem; font-weight:500; text-decoration:none; margin-top:.5rem; transition:all .2s; }
+.tracking-link:hover { background:var(--purple-brand); color:white; }
+.result-actions { display:flex; gap:.75rem; justify-content:center; margin-top:1.5rem; padding-top:1.25rem; border-top:1px solid var(--border-light); }
+.btn-sm { padding:.6rem 1.25rem; border-radius:10px; font-family:'Jost',sans-serif; font-size:.85rem; font-weight:500; cursor:pointer; text-decoration:none; border:1.5px solid var(--purple-brand); color:var(--purple-brand); background:none; transition:all .2s; }
+.btn-sm:hover { background:var(--purple-brand); color:white; }
+.btn-sm.primary { background:var(--purple-brand); color:white; }
+.btn-sm.primary:hover { background:var(--purple-deep); }
+</style>
+</head>
+<body>
+<header class="site-header" id="siteHeader">
+  <div class="container">
+    <div class="header-inner">
+      <a href="../index.html" class="logo"><div class="logo-mark">HB</div><div class="logo-text"><span class="logo-name">Halo Buds</span><span class="logo-tagline">Fully Handmade & Customized</span></div></a>
+      <nav class="main-nav"><a href="../index.html">Home</a><a href="shop.html">Shop</a><a href="custom-order.html">Custom Order</a><a href="contact.html">Contact</a></nav>
+      <div class="header-actions">
+        <a href="cart.html" class="icon-btn"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><span class="cart-badge" id="cartCount">0</span></a>
+        <a href="account.html" class="icon-btn"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="page-hero">
+  <div class="container">
+    <span class="script-title">Where's my order?</span>
+    <h1>Track Your Order</h1>
+  </div>
+</div>
+
+<div class="track-section">
+  <div class="container">
+    <div class="track-box">
+      <div class="search-card">
+        <h2>Enter Your Order Number</h2>
+        <p>Find your order number in your confirmation email or in My Account → Orders</p>
+        <div class="track-input-row">
+          <input type="text" class="track-input" id="orderInput" placeholder="e.g. HB2025001" value="">
+          <button class="btn-track" onclick="trackOrder()">Track</button>
+        </div>
+        <div class="track-error" id="trackError">Order not found. Please check your order number and try again.</div>
+      </div>
+
+      <div class="result-card" id="resultCard">
+        <div class="result-header">
+          <div>
+            <div class="result-order-num" id="resOrderNum">#HB00000</div>
+            <div class="result-date" id="resDate"></div>
+          </div>
+          <span class="status-badge" id="resStatus"></span>
+        </div>
+
+        <div class="progress-section">
+          <div class="progress-label">Order Progress</div>
+          <div class="progress-steps" id="progressSteps"></div>
+        </div>
+
+        <div class="detail-grid">
+          <div class="detail-item"><div class="detail-label">Payment</div><div class="detail-value" id="resPayment"></div></div>
+          <div class="detail-item"><div class="detail-label">Est. Delivery</div><div class="detail-value" id="resDelivery"></div></div>
+          <div class="detail-item"><div class="detail-label">Total Amount</div><div class="detail-value" id="resTotal"></div></div>
+          <div class="detail-item"><div class="detail-label">Items</div><div class="detail-value" id="resItems"></div></div>
+        </div>
+
+        <div id="trackingNumberSection" style="display:none">
+          <div class="detail-item"><div class="detail-label">Tracking Number</div></div>
+          <a href="#" class="tracking-link" id="trackingLink">📦 <span id="trackingNumDisplay"></span> — Track on Courier</a>
+        </div>
+
+        <div class="result-actions">
+          <a href="#" class="btn-sm primary" id="viewDetailLink">View Full Details</a>
+          <a href="shop.html" class="btn-sm">Continue Shopping</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="container"><div class="footer-bottom"><p>© 2025 Halo Buds. All rights reserved.</p></div></div>
+</footer>
+
+<script type="module">
+import { Auth, Utils } from '../js/config.js';
+const { supabase } = Auth;
+
+const STATUS_STEPS = [
+  { key:'pending',   label:'Placed',   icon:'📝' },
+  { key:'confirmed', label:'Confirmed',icon:'✅' },
+  { key:'processing',label:'Crafting', icon:'🔨' },
+  { key:'shipped',   label:'Shipped',  icon:'🚚' },
+  { key:'delivered', label:'Delivered',icon:'🎁' },
+];
+const STATUS_ORDER = STATUS_STEPS.map(s=>s.key);
+
+// Pre-fill from URL
+const params = new URLSearchParams(location.search);
+if (params.get('order')) {
+  document.getElementById('orderInput').value = params.get('order');
+  setTimeout(trackOrder, 200);
+}
+
+window.trackOrder = async () => {
+  const num = document.getElementById('orderInput').value.trim().toUpperCase();
+  const errEl = document.getElementById('trackError');
+  const resultCard = document.getElementById('resultCard');
+  errEl.classList.remove('show');
+  resultCard.classList.remove('show');
+
+  if (!num) { errEl.textContent='Please enter an order number.'; errEl.classList.add('show'); return; }
+
+  const { data: order } = await supabase
+    .from('orders')
+    .select('*, order_items(count)')
+    .eq('order_number', num.replace(/^HB/,''))
+    .single();
+
+  if (!order) { errEl.classList.add('show'); return; }
+
+  // Populate
+  document.getElementById('resOrderNum').textContent = '#' + order.order_number;
+  document.getElementById('resDate').textContent = 'Placed on ' + Utils.formatDate(order.created_at);
+  const statusBadge = document.getElementById('resStatus');
+  statusBadge.className = `status-badge status-${order.status}`;
+  statusBadge.textContent = Utils.getOrderStatusLabel(order.status);
+
+  document.getElementById('resPayment').textContent = order.payment_method === 'cod' ? 'Cash on Delivery' : 'Online Payment';
+  document.getElementById('resTotal').textContent = Utils.formatPrice(order.total_amount);
+  document.getElementById('resItems').textContent = order.order_items?.[0]?.count + ' item(s)' || '—';
+
+  const est = new Date(order.created_at);
+  est.setDate(est.getDate() + 7);
+  document.getElementById('resDelivery').textContent = est.toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+
+  if (order.tracking_number) {
+    document.getElementById('trackingNumberSection').style.display='block';
+    document.getElementById('trackingNumDisplay').textContent = order.tracking_number;
+    document.getElementById('trackingLink').href = `https://www.delhivery.com/track/package/${order.tracking_number}`;
+  }
+
+  document.getElementById('viewDetailLink').href = `order-detail.html?id=${order.id}`;
+
+  // Progress
+  const statusIdx = STATUS_ORDER.indexOf(order.status === 'cancelled' ? 'cancelled' : order.status);
+  const stepsHtml = STATUS_STEPS.map((step, i) => {
+    const done = i < statusIdx;
+    const current = i === statusIdx;
+    const isLast = i === STATUS_STEPS.length - 1;
+    return `
+      <div class="p-step">
+        <div class="p-dot ${done ? 'done' : current ? 'current' : ''}">${done ? '✓' : step.icon}</div>
+        <div class="p-label ${done||current ? 'done' : ''}">${step.label}</div>
+      </div>
+      ${!isLast ? `<div class="p-line ${done ? 'done' : ''}"></div>` : ''}
+    `;
+  }).join('');
+  document.getElementById('progressSteps').innerHTML = stepsHtml;
+
+  resultCard.classList.add('show');
+  resultCard.scrollIntoView({ behavior:'smooth', block:'start' });
+};
+
+// Allow Enter key
+document.getElementById('orderInput').addEventListener('keydown', e => { if(e.key==='Enter') trackOrder(); });
+</script>
+</body>
+</html>

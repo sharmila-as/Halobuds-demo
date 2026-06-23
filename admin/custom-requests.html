@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Custom Requests — Halo Buds Admin</title>
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+<aside class="admin-sidebar">
+  <div class="sidebar-logo"><a href="index.html" class="brand"><div class="logo-mark-sm">HB</div><div><div class="sidebar-brand-text">Halo Buds</div><div class="sidebar-brand-sub">Admin Panel</div></div></a></div>
+  <nav class="admin-nav">
+    <div class="nav-section">Main</div><a href="index.html"><span class="nav-icon">📊</span> Dashboard</a><a href="orders.html"><span class="nav-icon">📦</span> Orders</a>
+    <div class="nav-section">Catalogue</div><a href="products.html"><span class="nav-icon">🛍️</span> Products</a><a href="categories.html"><span class="nav-icon">🗂️</span> Categories</a><a href="banners.html"><span class="nav-icon">🖼️</span> Banners</a>
+    <div class="nav-section">Customers</div><a href="customers.html"><span class="nav-icon">👥</span> Customers</a><a href="reviews.html"><span class="nav-icon">⭐</span> Reviews</a>
+    <div class="nav-section">Support</div><a href="messages.html"><span class="nav-icon">💬</span> Messages</a><a href="custom-requests.html" class="active"><span class="nav-icon">✏️</span> Custom Requests</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="admin-user"><div class="admin-avatar" id="adminAvatarEl">A</div><div class="admin-user-info"><div class="admin-user-name" id="adminNameEl">Admin</div><div class="admin-user-role">Administrator</div></div></div>
+    <a href="../index.html" class="view-site-link" target="_blank">🌐 View Site ↗</a>
+    <button class="btn-logout" onclick="adminSignOut()">🚪 Sign Out</button>
+  </div>
+</aside>
+
+<main class="admin-main">
+  <div class="admin-topbar">
+    <div class="topbar-title">Custom Order Requests</div>
+    <div class="topbar-actions"><span id="pendingLabel" style="font-size:.875rem;color:var(--text-light)"></span></div>
+  </div>
+
+  <div class="admin-content">
+    <div class="admin-card">
+      <div class="table-toolbar">
+        <div class="search-input-wrap">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input type="text" id="searchInput" placeholder="Search by name, email..." oninput="filterReqs()">
+        </div>
+        <select class="filter-select" id="statusFilter" onchange="filterReqs()">
+          <option value="">All Statuses</option>
+          <option value="pending">Pending</option>
+          <option value="quoted">Quoted</option>
+          <option value="accepted">Accepted</option>
+          <option value="in_progress">In Progress</option>
+          <option value="completed">Completed</option>
+          <option value="rejected">Rejected</option>
+        </select>
+        <select class="filter-select" id="typeFilter" onchange="filterReqs()">
+          <option value="">All Types</option>
+          <option value="floral_crown">Floral Crown</option>
+          <option value="hair_accessories">Hair Accessories</option>
+          <option value="bouquet">Bouquet / Arrangement</option>
+          <option value="gift_hamper">Gift Hamper</option>
+          <option value="wedding_decor">Wedding Decor</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>Customer</th><th>Contact</th><th>Product Type</th><th>Budget</th><th>Event Date</th><th>Status</th><th>Submitted</th><th>Actions</th></tr></thead>
+          <tbody id="reqsTableBody"><tr><td colspan="8" class="loading">Loading...</td></tr></tbody>
+        </table>
+      </div>
+      <div class="pagination"><span id="pageInfo"></span><button class="page-btn" id="prevBtn" onclick="prevPage()">‹</button><div id="pageNums" style="display:flex;gap:.25rem"></div><button class="page-btn" id="nextBtn" onclick="nextPage()">›</button></div>
+    </div>
+  </div>
+</main>
+
+<!-- Detail Modal -->
+<div class="modal-overlay" id="reqModal">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-header"><h2 id="modalTitle">Custom Request</h2><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+      <button class="btn btn-primary" onclick="saveStatus()">Update Status</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { supabase, requireAdmin, adminSignOut, formatDate, formatDateTime, getStatusBadge, showToast } from './js/admin.js';
+window.adminSignOut = adminSignOut;
+
+const TYPE_LABELS = { floral_crown:'Floral Crown', hair_accessories:'Hair Accessories', bouquet:'Bouquet / Arrangement', gift_hamper:'Gift Hamper', wedding_decor:'Wedding Decor', other:'Other' };
+const STATUS_OPTS = ['pending','quoted','accepted','in_progress','completed','rejected'];
+
+let all = [], filtered = [], page = 1;
+const PER_PAGE = 15;
+let currentId = null;
+
+async function init() {
+  const auth = await requireAdmin();
+  if (!auth) return;
+  const name = `${auth.profile.first_name||''} ${auth.profile.last_name||''}`.trim() || 'Admin';
+  document.getElementById('adminNameEl').textContent = name;
+  document.getElementById('adminAvatarEl').textContent = name[0].toUpperCase();
+  load();
+}
+
+async function load() {
+  const { data } = await supabase.from('custom_order_requests').select('*').order('created_at', { ascending: false });
+  all = data || [];
+  const pending = all.filter(r => r.status === 'pending').length;
+  document.getElementById('pendingLabel').textContent = pending ? `${pending} pending review` : `${all.length} total requests`;
+  filtered = [...all];
+  render();
+}
+
+window.filterReqs = () => {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const status = document.getElementById('statusFilter').value;
+  const type = document.getElementById('typeFilter').value;
+  filtered = all.filter(r => {
+    const matchQ = !q || r.customer_name?.toLowerCase().includes(q) || r.email?.toLowerCase().includes(q);
+    const matchS = !status || r.status === status;
+    const matchT = !type || r.product_type === type;
+    return matchQ && matchS && matchT;
+  });
+  page = 1; render();
+};
+
+function render() {
+  const start = (page-1)*PER_PAGE, end = start+PER_PAGE;
+  const slice = filtered.slice(start, end);
+  const tbody = document.getElementById('reqsTableBody');
+  if (!slice.length) {
+    tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">✏️</div><h3>No requests found</h3></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = slice.map(r => `<tr style="${r.status==='pending'?'background:#fffbeb':''}">
+    <td class="cell-bold">${r.customer_name||'—'}</td>
+    <td class="text-sm">${r.email||'—'}${r.phone?'<br>'+r.phone:''}</td>
+    <td>${TYPE_LABELS[r.product_type]||r.product_type||'—'}</td>
+    <td class="text-sm">${r.budget_range||'—'}</td>
+    <td class="text-sm">${r.event_date ? formatDate(r.event_date) : '—'}</td>
+    <td>${getStatusBadge(r.status||'pending')}</td>
+    <td class="text-sm">${formatDate(r.created_at)}</td>
+    <td><button class="btn btn-secondary btn-sm" onclick="openReq('${r.id}')">View</button></td>
+  </tr>`).join('');
+
+  const totalPages = Math.ceil(filtered.length/PER_PAGE);
+  document.getElementById('pageInfo').textContent = `${start+1}–${Math.min(end,filtered.length)} of ${filtered.length}`;
+  document.getElementById('prevBtn').disabled = page<=1;
+  document.getElementById('nextBtn').disabled = page>=totalPages;
+  document.getElementById('pageNums').innerHTML = Array.from({length:Math.min(totalPages,7)},(_,i)=>{const p=i+1;return`<button class="page-btn${p===page?' active':''}" onclick="goPage(${p})">${p}</button>`;}).join('');
+}
+
+window.goPage=(p)=>{page=p;render();};
+window.prevPage=()=>{if(page>1){page--;render();}};
+window.nextPage=()=>{if(page<Math.ceil(filtered.length/PER_PAGE)){page++;render();}};
+
+window.openReq = (id) => {
+  currentId = id;
+  const r = all.find(x => x.id === id);
+  if (!r) return;
+  document.getElementById('modalTitle').textContent = `Custom Request — ${r.customer_name}`;
+  document.getElementById('modalBody').innerHTML = `
+    <div class="form-row" style="margin-bottom:1rem">
+      <div><div class="text-sm">Customer</div><div class="text-bold">${r.customer_name||'—'}</div></div>
+      <div><div class="text-sm">Submitted</div><div class="text-bold">${formatDateTime(r.created_at)}</div></div>
+    </div>
+    <div class="form-row" style="margin-bottom:1rem">
+      <div><div class="text-sm">Email</div><div class="text-bold"><a href="mailto:${r.email}" style="color:var(--purple-brand)">${r.email||'—'}</a></div></div>
+      <div><div class="text-sm">Phone</div><div class="text-bold">${r.phone||'—'}</div></div>
+    </div>
+    <hr class="divider">
+    <div class="form-row" style="margin-bottom:1rem">
+      <div><div class="text-sm">Product Type</div><div class="text-bold">${TYPE_LABELS[r.product_type]||r.product_type||'—'}</div></div>
+      <div><div class="text-sm">Budget Range</div><div class="text-bold">${r.budget_range||'—'}</div></div>
+    </div>
+    <div class="form-row" style="margin-bottom:1rem">
+      <div><div class="text-sm">Event Date</div><div class="text-bold">${r.event_date ? formatDate(r.event_date) : 'Not specified'}</div></div>
+      <div><div class="text-sm">Quantity</div><div class="text-bold">${r.quantity||1}</div></div>
+    </div>
+    ${r.color_palette ? `<div style="margin-bottom:1rem"><div class="text-sm">Colour Palette</div><div class="text-bold">${r.color_palette}</div></div>` : ''}
+    ${r.custom_name ? `<div style="margin-bottom:1rem"><div class="text-sm">Custom Name / Initials</div><div class="text-bold">${r.custom_name}</div></div>` : ''}
+    ${r.description ? `<div style="margin-bottom:1rem"><div class="text-sm">Description / Vision</div><div style="font-size:.875rem;color:var(--text-medium);background:var(--bg);padding:.875rem;border-radius:10px;line-height:1.7;white-space:pre-wrap">${r.description}</div></div>` : ''}
+    ${r.reference_images?.length ? `<div style="margin-bottom:1rem"><div class="text-sm" style="margin-bottom:.5rem">Reference Images</div><div style="display:flex;gap:.5rem;flex-wrap:wrap">${r.reference_images.map(img=>`<img src="${img}" style="width:80px;height:80px;border-radius:8px;object-fit:cover;border:1px solid var(--border)">`).join('')}</div></div>` : ''}
+    <hr class="divider">
+    <div class="form-row">
+      <div class="form-group">
+        <label>Update Status</label>
+        <select id="modalStatus" class="filter-select" style="width:100%">
+          ${STATUS_OPTS.map(s=>`<option value="${s}"${r.status===s?' selected':''}>${s.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Admin Notes</label>
+        <input type="text" id="modalNotes" value="${r.admin_notes||''}" placeholder="Quote sent, awaiting reply...">
+      </div>
+    </div>
+    <div style="display:flex;gap:.75rem;margin-top:.5rem">
+      <a href="mailto:${r.email}?subject=Re: Your Custom Order Request" class="btn btn-secondary btn-sm">📧 Reply by Email</a>
+      ${r.phone ? `<a href="https://wa.me/${r.phone.replace(/\D/g,'')}?text=Hi%20${encodeURIComponent(r.customer_name||'')}!%20Thank%20you%20for%20your%20custom%20order%20request." target="_blank" class="btn btn-secondary btn-sm">💬 WhatsApp</a>` : ''}
+    </div>
+  `;
+  document.getElementById('reqModal').classList.add('open');
+};
+
+window.closeModal = () => { document.getElementById('reqModal').classList.remove('open'); currentId = null; };
+
+window.saveStatus = async () => {
+  if (!currentId) return;
+  const status = document.getElementById('modalStatus').value;
+  const notes = document.getElementById('modalNotes').value.trim();
+  const { error } = await supabase.from('custom_order_requests').update({ status, admin_notes: notes||null, updated_at: new Date().toISOString() }).eq('id', currentId);
+  if (error) { showToast('Error: '+error.message, 'error'); return; }
+  showToast('Request updated!');
+  closeModal();
+  load();
+};
+
+init();
+</script>
+</body>
+</html>

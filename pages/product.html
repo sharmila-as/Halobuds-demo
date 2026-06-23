@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product — Halo Buds</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="../css/main.css">
+  <style>
+    .product-detail {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-12);
+      align-items: start;
+      padding: var(--space-12) 0;
+    }
+
+    /* Gallery */
+    .product-gallery {
+      position: sticky;
+      top: calc(var(--header-height) + 1rem);
+    }
+
+    .product-gallery-main {
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      background: var(--purple-pale);
+      aspect-ratio: 1;
+      margin-bottom: var(--space-3);
+      position: relative;
+      cursor: zoom-in;
+    }
+
+    .product-gallery-main img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 500ms ease;
+    }
+
+    .product-gallery-main:hover img {
+      transform: scale(1.05);
+    }
+
+    .product-gallery-thumbs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-2);
+    }
+
+    .gallery-thumb {
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      aspect-ratio: 1;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: border-color var(--transition-fast);
+      background: var(--purple-pale);
+    }
+
+    .gallery-thumb.active {
+      border-color: var(--purple-brand);
+    }
+
+    .gallery-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Info */
+    .product-info {
+      padding-top: var(--space-4);
+    }
+
+    .product-info-category {
+      font-size: var(--text-sm);
+      color: var(--purple-mid);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: var(--space-2);
+    }
+
+    .product-info-title {
+      font-family: var(--font-display);
+      font-size: clamp(var(--text-3xl), 3vw, var(--text-4xl));
+      font-weight: 400;
+      color: var(--purple-deep);
+      line-height: 1.2;
+      margin-bottom: var(--space-4);
+    }
+
+    .product-info-rating {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-5);
+    }
+
+    .product-info-price {
+      display: flex;
+      align-items: baseline;
+      gap: var(--space-3);
+      margin-bottom: var(--space-5);
+      padding-bottom: var(--space-5);
+      border-bottom: 1px solid var(--grey-100);
+    }
+
+    .product-info-price .price-current {
+      font-family: var(--font-display);
+      font-size: var(--text-4xl);
+    }
+
+    .product-short-desc {
+      font-size: var(--text-base);
+      color: var(--grey-500);
+      line-height: 1.8;
+      margin-bottom: var(--space-6);
+    }
+
+    /* Customization Box */
+    .customization-box {
+      background: linear-gradient(135deg, var(--purple-pale), var(--pink-soft));
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+      margin-bottom: var(--space-6);
+      border: 1px solid rgba(196,168,224,0.3);
+    }
+
+    .customization-title {
+      font-family: var(--font-display);
+      font-size: var(--text-xl);
+      color: var(--purple-deep);
+      margin-bottom: var(--space-4);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .custom-upload-area {
+      border: 2px dashed var(--purple-soft);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      text-align: center;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      background: rgba(255,255,255,0.5);
+    }
+
+    .custom-upload-area:hover {
+      border-color: var(--purple-brand);
+      background: rgba(255,255,255,0.8);
+    }
+
+    .custom-upload-area input {
+      display: none;
+    }
+
+    /* Quantity */
+    .quantity-selector {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-5);
+    }
+
+    .qty-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-full);
+      border: 1.5px solid var(--grey-200);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: var(--text-xl);
+      transition: all var(--transition-fast);
+      color: var(--grey-600);
+      background: none;
+    }
+
+    .qty-btn:hover {
+      border-color: var(--purple-brand);
+      color: var(--purple-brand);
+    }
+
+    .qty-value {
+      font-family: var(--font-display);
+      font-size: var(--text-2xl);
+      font-weight: 500;
+      min-width: 40px;
+      text-align: center;
+    }
+
+    /* Add to cart actions */
+    .product-actions {
+      display: flex;
+      gap: var(--space-3);
+      margin-bottom: var(--space-6);
+    }
+
+    .product-actions .btn-primary {
+      flex: 1;
+      padding: 1rem;
+      font-size: var(--text-base);
+    }
+
+    .product-actions .btn-outline {
+      width: 52px;
+      height: 52px;
+      padding: 0;
+      border-radius: var(--radius-full);
+    }
+
+    /* Meta info */
+    .product-meta {
+      border-top: 1px solid var(--grey-100);
+      padding-top: var(--space-5);
+    }
+
+    .product-meta-item {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-3);
+      padding: var(--space-3) 0;
+      font-size: var(--text-sm);
+      color: var(--grey-600);
+      border-bottom: 1px solid var(--grey-100);
+    }
+
+    .product-meta-item:last-child { border-bottom: none; }
+
+    .product-meta-icon {
+      font-size: 1rem;
+      margin-top: 1px;
+    }
+
+    .product-meta-label {
+      font-weight: 500;
+      color: var(--grey-700);
+      min-width: 120px;
+    }
+
+    /* Tabs */
+    .product-tabs {
+      margin-top: var(--space-16);
+      border-top: 2px solid var(--grey-100);
+    }
+
+    .tabs-nav {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--grey-100);
+    }
+
+    .tab-btn {
+      padding: var(--space-4) var(--space-6);
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      color: var(--grey-500);
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      cursor: pointer;
+      background: none;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+      transition: all var(--transition-fast);
+      letter-spacing: 0.04em;
+    }
+
+    .tab-btn.active {
+      color: var(--purple-brand);
+      border-bottom-color: var(--purple-brand);
+    }
+
+    .tab-content {
+      padding: var(--space-8) 0;
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @media (max-width: 768px) {
+      .product-detail {
+        grid-template-columns: 1fr;
+        gap: var(--space-6);
+        padding: var(--space-6) 0;
+      }
+      .product-gallery { position: static; }
+      .product-actions { flex-wrap: wrap; }
+      .product-actions .btn-primary { min-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+<header class="header scrolled">
+  <div class="container">
+    <div class="header-inner">
+      <a href="../index.html" class="header-logo">
+        <div class="header-logo-mark">HB</div>
+        <div class="header-logo-text">
+          <span class="header-logo-name">HALO BUDS</span>
+          <span class="header-logo-tagline">Handmade & Customized</span>
+        </div>
+      </a>
+      <nav class="header-nav">
+        <a href="../index.html" class="header-nav-link">Home</a>
+        <a href="shop.html" class="header-nav-link active">Shop</a>
+        <a href="custom-order.html" class="header-nav-link">Custom Order</a>
+        <a href="about.html" class="header-nav-link">About</a>
+        <a href="contact.html" class="header-nav-link">Contact</a>
+      </nav>
+      <div class="header-actions">
+        <a href="wishlist.html" class="header-action-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </a>
+        <a href="cart.html" class="header-action-btn" style="position:relative">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          <span class="cart-badge">0</span>
+        </a>
+        <a href="account.html" class="header-action-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- Loading state -->
+  <div id="productLoading" style="text-align:center;padding:8rem 0;">
+    <div class="loading-spinner"></div>
+    <p style="color:var(--grey-400);margin-top:1rem;">Loading product...</p>
+  </div>
+
+  <!-- Product Detail -->
+  <div id="productContent" style="display:none;">
+    <div style="background:var(--grey-50);padding:var(--space-3) 0;">
+      <div class="container">
+        <div class="page-breadcrumb" style="justify-content:flex-start;">
+          <a href="../index.html">Home</a> <span>›</span>
+          <a href="shop.html">Shop</a> <span>›</span>
+          <a href="#" id="bcCategory"></a> <span>›</span>
+          <span id="bcProduct" style="color:var(--grey-700)"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="product-detail">
+        <!-- Gallery -->
+        <div class="product-gallery">
+          <div class="product-gallery-main">
+            <img id="mainImage" src="" alt="">
+          </div>
+          <div class="product-gallery-thumbs" id="thumbsGrid"></div>
+        </div>
+
+        <!-- Info -->
+        <div class="product-info">
+          <div class="product-info-category" id="productCategory"></div>
+          <h1 class="product-info-title" id="productTitle"></h1>
+
+          <div class="product-info-rating">
+            <div class="stars" id="productStars"></div>
+            <span style="font-size:var(--text-sm);color:var(--grey-500);" id="productRatingText"></span>
+            <a href="#reviews" style="font-size:var(--text-sm);color:var(--purple-mid);text-decoration:underline;">See all reviews</a>
+          </div>
+
+          <div class="product-info-price">
+            <span class="price-current" id="productPrice"></span>
+            <span class="price-compare" id="productComparePrice" style="display:none;"></span>
+            <span class="price-discount" id="productDiscount" style="display:none;"></span>
+          </div>
+
+          <p class="product-short-desc" id="productShortDesc"></p>
+
+          <!-- Customization -->
+          <div class="customization-box" id="customizationBox" style="display:none;">
+            <div class="customization-title">✨ Personalize This Piece</div>
+            <div id="customizationFields"></div>
+          </div>
+
+          <!-- Quantity -->
+          <div style="margin-bottom:var(--space-5);">
+            <div style="font-size:var(--text-sm);font-weight:500;color:var(--grey-700);margin-bottom:var(--space-3);">Quantity</div>
+            <div class="quantity-selector">
+              <button class="qty-btn" id="qtyMinus">−</button>
+              <span class="qty-value" id="qtyValue">1</span>
+              <button class="qty-btn" id="qtyPlus">+</button>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="product-actions">
+            <button class="btn btn-primary" id="addToCartBtn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+              Add to Cart
+            </button>
+            <button class="btn btn-outline btn-icon" id="wishlistBtn" title="Add to Wishlist">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+          </div>
+
+          <a href="checkout.html" style="display:block;margin-bottom:var(--space-6);">
+            <button class="btn btn-pink" style="width:100%;">Buy Now</button>
+          </a>
+
+          <!-- Meta -->
+          <div class="product-meta">
+            <div class="product-meta-item">
+              <span class="product-meta-icon">⏱</span>
+              <span class="product-meta-label">Processing Time:</span>
+              <span id="processingTime"></span>
+            </div>
+            <div class="product-meta-item">
+              <span class="product-meta-icon">🚚</span>
+              <span class="product-meta-label">Shipping:</span>
+              <span>Free on orders above ₹999. Estimated 3-5 days.</span>
+            </div>
+            <div class="product-meta-item">
+              <span class="product-meta-icon">🌿</span>
+              <span class="product-meta-label">Materials:</span>
+              <span id="productMaterials"></span>
+            </div>
+            <div class="product-meta-item">
+              <span class="product-meta-icon">🔒</span>
+              <span class="product-meta-label">Payment:</span>
+              <span>Secure via Razorpay / UPI / COD</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs: Description, Care, Reviews -->
+      <div class="product-tabs">
+        <div class="tabs-nav">
+          <button class="tab-btn active" data-tab="description">Description</button>
+          <button class="tab-btn" data-tab="care">Care Instructions</button>
+          <button class="tab-btn" data-tab="reviews" id="reviewsTab">Reviews (<span id="reviewCount">0</span>)</button>
+        </div>
+
+        <div class="tab-content active" id="tab-description">
+          <p style="color:var(--grey-600);line-height:1.9;font-size:var(--text-lg);" id="productDescription"></p>
+        </div>
+
+        <div class="tab-content" id="tab-care">
+          <div style="color:var(--grey-600);line-height:1.9;" id="productCare"></div>
+        </div>
+
+        <div class="tab-content" id="tab-reviews">
+          <div id="reviewsGrid" class="reviews-grid"></div>
+          <div id="reviewFormWrap" style="margin-top:var(--space-8);">
+            <h3 style="font-family:var(--font-display);font-size:var(--text-2xl);color:var(--purple-deep);margin-bottom:var(--space-5);">Write a Review</h3>
+            <div id="reviewForm"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="productNotFound" style="display:none;">
+    <div class="empty-state" style="padding:8rem 0;">
+      <span class="empty-state-icon">😔</span>
+      <div class="empty-state-title">Product not found</div>
+      <p class="empty-state-desc">The product you're looking for doesn't exist or has been removed.</p>
+      <a href="shop.html" class="btn btn-primary">Browse Shop</a>
+    </div>
+  </div>
+</main>
+
+<script src="../js/config.js"></script>
+<script>
+let currentProduct = null;
+let quantity = 1;
+
+document.addEventListener('DOMContentLoaded', async () => {
+  const slug = Utils.getQueryParam('slug');
+  if (!slug) { showNotFound(); return; }
+
+  const { data: product, error } = await Products.getBySlug(slug);
+  if (error || !product) { showNotFound(); return; }
+
+  currentProduct = product;
+  renderProduct(product);
+  loadReviews(product.id);
+  initQuantity();
+  initActions(product);
+  initTabs();
+});
+
+function showNotFound() {
+  document.getElementById('productLoading').style.display = 'none';
+  document.getElementById('productNotFound').style.display = 'block';
+}
+
+function renderProduct(p) {
+  document.title = `${p.name} — Halo Buds`;
+
+  document.getElementById('productLoading').style.display = 'none';
+  document.getElementById('productContent').style.display = 'block';
+
+  // Breadcrumb
+  document.getElementById('bcCategory').textContent = p.categories?.name || 'Shop';
+  document.getElementById('bcCategory').href = `shop.html?category=${p.categories?.slug || ''}`;
+  document.getElementById('bcProduct').textContent = p.name;
+
+  // Category
+  document.getElementById('productCategory').textContent = p.categories?.name || 'Handmade';
+
+  // Title
+  document.getElementById('productTitle').textContent = p.name;
+
+  // Rating
+  const stars = [1,2,3,4,5].map(i => `<span class="star ${i <= Math.round(p.rating || 0) ? 'filled' : ''}">★</span>`).join('');
+  document.getElementById('productStars').innerHTML = stars;
+  document.getElementById('productRatingText').textContent = p.review_count > 0 ? `${p.rating?.toFixed(1)} (${p.review_count} reviews)` : 'No reviews yet';
+  document.getElementById('reviewCount').textContent = p.review_count || 0;
+
+  // Price
+  document.getElementById('productPrice').textContent = Utils.formatPrice(p.price);
+  if (p.compare_price) {
+    document.getElementById('productComparePrice').textContent = Utils.formatPrice(p.compare_price);
+    document.getElementById('productComparePrice').style.display = 'inline';
+    const discount = Math.round((1 - p.price / p.compare_price) * 100);
+    document.getElementById('productDiscount').textContent = `Save ${discount}%`;
+    document.getElementById('productDiscount').style.display = 'inline';
+  }
+
+  // Descriptions
+  document.getElementById('productShortDesc').textContent = p.short_description || '';
+  document.getElementById('productDescription').textContent = p.description || '';
+
+  // Care
+  document.getElementById('productCare').innerHTML = p.care_instructions
+    ? `<p>${p.care_instructions}</p>`
+    : `<ul style="list-style:disc;padding-left:1.5rem;color:var(--grey-600);line-height:2;">
+        <li>Store flat in the gift box when not in use</li>
+        <li>Keep away from direct sunlight and moisture</li>
+        <li>Handle dried flower pieces gently</li>
+        <li>A light mist of hairspray can preserve dried blooms</li>
+        <li>Clean fabric flowers with a soft dry cloth only</li>
+      </ul>`;
+
+  // Processing time
+  document.getElementById('processingTime').textContent = `${p.processing_days || 3}–${(p.processing_days || 3) + 2} business days`;
+
+  // Materials
+  document.getElementById('productMaterials').textContent = p.materials || 'High-quality handpicked materials';
+
+  // Images
+  const images = p.images?.length ? p.images : ['https://images.unsplash.com/photo-1519741497674-611481863552?w=800'];
+  const mainImg = document.getElementById('mainImage');
+  mainImg.src = images[0];
+  mainImg.alt = p.name;
+
+  const thumbs = document.getElementById('thumbsGrid');
+  thumbs.innerHTML = images.map((img, i) => `
+    <div class="gallery-thumb ${i === 0 ? 'active' : ''}" onclick="setMainImage('${img}', this)">
+      <img src="${img}" alt="${p.name} ${i+1}" loading="lazy">
+    </div>
+  `).join('');
+
+  // Customization
+  if (p.allow_customization) {
+    document.getElementById('customizationBox').style.display = 'block';
+    const opts = p.customization_options || {};
+    let fields = '';
+    if (opts.allow_name) fields += `
+      <div class="form-group">
+        <label class="form-label">Custom Name / Text</label>
+        <input type="text" class="form-input" id="customName" placeholder="Enter name or text (max 20 characters)" maxlength="20">
+      </div>`;
+    if (opts.allow_message) fields += `
+      <div class="form-group">
+        <label class="form-label">Gift Message</label>
+        <textarea class="form-textarea" id="customMessage" placeholder="Write a heartfelt message..." rows="2" style="min-height:80px;"></textarea>
+      </div>`;
+    if (opts.allow_photo) fields += `
+      <div class="form-group">
+        <label class="form-label">Reference Photo</label>
+        <div class="custom-upload-area" onclick="document.getElementById('photoUpload').click()">
+          <input type="file" id="photoUpload" accept="image/*">
+          <div>📸</div>
+          <div style="font-size:var(--text-sm);color:var(--grey-500);margin-top:var(--space-2);">Click to upload inspiration photo</div>
+        </div>
+        <div id="uploadPreview"></div>
+      </div>`;
+    if (opts.allow_instructions !== false) fields += `
+      <div class="form-group">
+        <label class="form-label">Special Instructions</label>
+        <textarea class="form-textarea" id="specialInstructions" placeholder="Any specific color preferences, sizes, or special requests..." rows="2" style="min-height:80px;"></textarea>
+      </div>`;
+    document.getElementById('customizationFields').innerHTML = fields;
+
+    // Photo preview
+    const photoInput = document.getElementById('photoUpload');
+    if (photoInput) {
+      photoInput.addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          document.getElementById('uploadPreview').innerHTML = `<img src="${reader.result}" style="max-height:120px;border-radius:var(--radius-md);margin-top:var(--space-2);">`;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  }
+}
+
+function setMainImage(src, thumb) {
+  document.getElementById('mainImage').src = src;
+  document.querySelectorAll('.gallery-thumb').forEach(t => t.classList.remove('active'));
+  thumb.classList.add('active');
+}
+
+function initQuantity() {
+  document.getElementById('qtyMinus').addEventListener('click', () => {
+    if (quantity > 1) { quantity--; document.getElementById('qtyValue').textContent = quantity; }
+  });
+  document.getElementById('qtyPlus').addEventListener('click', () => {
+    if (quantity < 10) { quantity++; document.getElementById('qtyValue').textContent = quantity; }
+  });
+}
+
+function getCustomization() {
+  return {
+    name: document.getElementById('customName')?.value || '',
+    message: document.getElementById('customMessage')?.value || '',
+    instructions: document.getElementById('specialInstructions')?.value || '',
+  };
+}
+
+function initActions(product) {
+  // Wishlist
+  const wishBtn = document.getElementById('wishlistBtn');
+  Wishlist.isInWishlist(product.id).then(is => {
+    if (is) { wishBtn.style.background = 'var(--purple-brand)'; wishBtn.style.color = 'white'; }
+  });
+  wishBtn.addEventListener('click', async () => {
+    const { added } = await Wishlist.toggle(product.id);
+    wishBtn.style.background = added ? 'var(--purple-brand)' : '';
+    wishBtn.style.color = added ? 'white' : '';
+    Utils.showToast(added ? 'Added to wishlist 💜' : 'Removed from wishlist', added ? 'success' : 'info');
+  });
+
+  // Add to cart
+  document.getElementById('addToCartBtn').addEventListener('click', async () => {
+    const btn = document.getElementById('addToCartBtn');
+    btn.disabled = true; btn.textContent = 'Adding...';
+    const customization = getCustomization();
+    await Cart.add(product.id, quantity, null, customization);
+    Utils.showToast('Added to cart! 🛒');
+    btn.innerHTML = '✓ Added to Cart';
+    setTimeout(() => {
+      btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg> Add to Cart';
+      btn.disabled = false;
+    }, 2000);
+  });
+}
+
+function initTabs() {
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
+    });
+  });
+}
+
+async function loadReviews(productId) {
+  const { data: reviews } = await Products.getReviews(productId);
+  const grid = document.getElementById('reviewsGrid');
+
+  if (!reviews || reviews.length === 0) {
+    grid.innerHTML = `<div class="empty-state"><span class="empty-state-icon">💬</span><p class="empty-state-desc">No reviews yet. Be the first to share your experience!</p></div>`;
+  } else {
+    grid.innerHTML = reviews.map(r => `
+      <div class="review-card">
+        <div class="review-header">
+          <div class="reviewer-avatar">${r.profiles?.full_name?.[0] || 'A'}</div>
+          <div class="reviewer-info">
+            <div class="reviewer-name">${r.profiles?.full_name || 'Anonymous'}</div>
+            <div class="reviewer-date">${Utils.formatDate(r.created_at)}</div>
+          </div>
+          ${r.is_verified ? '<span class="review-verified">✓ Verified</span>' : ''}
+        </div>
+        <div class="review-stars"><div class="stars">${[1,2,3,4,5].map(i => `<span class="star ${i <= r.rating ? 'filled' : ''}">★</span>`).join('')}</div></div>
+        ${r.title ? `<div class="review-title">${r.title}</div>` : ''}
+        ${r.content ? `<div class="review-content">${r.content}</div>` : ''}
+      </div>
+    `).join('');
+  }
+
+  // Review form
+  const user = await Auth.getUser();
+  const formWrap = document.getElementById('reviewForm');
+  if (user) {
+    formWrap.innerHTML = `
+      <div id="starRating" style="display:flex;gap:var(--space-2);margin-bottom:var(--space-4);">
+        ${[1,2,3,4,5].map(i => `<span class="star" data-rating="${i}" style="font-size:2rem;cursor:pointer;transition:color var(--transition-fast);">★</span>`).join('')}
+      </div>
+      <div class="form-group"><input type="text" class="form-input" id="reviewTitle" placeholder="Review title (optional)"></div>
+      <div class="form-group"><textarea class="form-textarea" id="reviewContent" placeholder="Share your experience with this product..."></textarea></div>
+      <button class="btn btn-primary" id="submitReviewBtn">Submit Review</button>
+    `;
+
+    let selectedRating = 0;
+    document.querySelectorAll('#starRating .star').forEach(star => {
+      star.addEventListener('mouseover', () => {
+        const r = parseInt(star.dataset.rating);
+        document.querySelectorAll('#starRating .star').forEach((s, i) => s.style.color = i < r ? '#f59e0b' : 'var(--grey-300)');
+      });
+      star.addEventListener('mouseout', () => {
+        document.querySelectorAll('#starRating .star').forEach((s, i) => s.style.color = i < selectedRating ? '#f59e0b' : 'var(--grey-300)');
+      });
+      star.addEventListener('click', () => {
+        selectedRating = parseInt(star.dataset.rating);
+        document.querySelectorAll('#starRating .star').forEach((s, i) => s.style.color = i < selectedRating ? '#f59e0b' : 'var(--grey-300)');
+      });
+    });
+
+    document.getElementById('submitReviewBtn').addEventListener('click', async () => {
+      if (!selectedRating) { Utils.showToast('Please select a star rating', 'error'); return; }
+      const title = document.getElementById('reviewTitle').value;
+      const content = document.getElementById('reviewContent').value;
+      const btn = document.getElementById('submitReviewBtn');
+      btn.disabled = true; btn.textContent = 'Submitting...';
+      const { error } = await supabaseClient.from('reviews').insert({
+        product_id: productId,
+        user_id: user.id,
+        rating: selectedRating,
+        title,
+        content,
+        is_verified: false,
+        is_approved: false
+      });
+      if (error) { Utils.showToast('Could not submit review. Please try again.', 'error'); }
+      else { Utils.showToast('Review submitted! It\'ll appear after moderation. 💜'); formWrap.innerHTML = '<p style="color:var(--grey-500);">Thank you for your review!</p>'; }
+      btn.disabled = false; btn.textContent = 'Submit Review';
+    });
+  } else {
+    formWrap.innerHTML = `<p style="color:var(--grey-500);">Please <a href="login.html" style="color:var(--purple-brand);">sign in</a> to write a review.</p>`;
+  }
+}
+</script>
+</body>
+</html>

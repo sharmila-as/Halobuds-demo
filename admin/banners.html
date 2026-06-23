@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Banners — Halo Buds Admin</title>
+<link rel="stylesheet" href="css/admin.css">
+<style>
+.banner-preview { width:100%;aspect-ratio:16/5;border-radius:12px;overflow:hidden;background:linear-gradient(135deg,var(--purple-deep),var(--purple-brand));display:flex;align-items:center;justify-content:center;margin-bottom:1rem;position:relative; }
+.banner-preview img { width:100%;height:100%;object-fit:cover;position:absolute;inset:0; }
+.banner-preview-text { position:relative;color:white;text-align:center;padding:1rem; }
+.banner-card { border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:1rem;background:white; }
+.banner-card-header { display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid var(--border); }
+.banner-card-meta { font-size:.78rem;color:var(--text-light); }
+.banner-drag-handle { cursor:grab;color:var(--text-light);padding:.25rem; }
+</style>
+</head>
+<body>
+<aside class="admin-sidebar">
+  <div class="sidebar-logo"><a href="index.html" class="brand"><div class="logo-mark-sm">HB</div><div><div class="sidebar-brand-text">Halo Buds</div><div class="sidebar-brand-sub">Admin Panel</div></div></a></div>
+  <nav class="admin-nav">
+    <div class="nav-section">Main</div><a href="index.html"><span class="nav-icon">📊</span> Dashboard</a><a href="orders.html"><span class="nav-icon">📦</span> Orders</a>
+    <div class="nav-section">Catalogue</div><a href="products.html"><span class="nav-icon">🛍️</span> Products</a><a href="categories.html"><span class="nav-icon">🗂️</span> Categories</a><a href="banners.html" class="active"><span class="nav-icon">🖼️</span> Banners</a>
+    <div class="nav-section">Customers</div><a href="customers.html"><span class="nav-icon">👥</span> Customers</a><a href="reviews.html"><span class="nav-icon">⭐</span> Reviews</a>
+    <div class="nav-section">Support</div><a href="messages.html"><span class="nav-icon">💬</span> Messages</a><a href="custom-requests.html"><span class="nav-icon">✏️</span> Custom Requests</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="admin-user"><div class="admin-avatar" id="adminAvatarEl">A</div><div class="admin-user-info"><div class="admin-user-name" id="adminNameEl">Admin</div><div class="admin-user-role">Administrator</div></div></div>
+    <a href="../index.html" class="view-site-link" target="_blank">🌐 View Site ↗</a>
+    <button class="btn-logout" onclick="adminSignOut()">🚪 Sign Out</button>
+  </div>
+</aside>
+
+<main class="admin-main">
+  <div class="admin-topbar">
+    <div class="topbar-title">Homepage Banners</div>
+    <div class="topbar-actions">
+      <button class="btn btn-primary" onclick="openModal()">+ Add Banner</button>
+    </div>
+  </div>
+
+  <div class="admin-content">
+    <div style="display:grid;grid-template-columns:1fr 380px;gap:1.5rem">
+      <!-- Banners list -->
+      <div>
+        <p style="font-family:'Jost',sans-serif;font-size:.875rem;color:var(--text-light);margin-bottom:1.25rem">These banners appear in the homepage hero slider. Active banners are shown in order.</p>
+        <div id="bannersList"><div class="loading">Loading banners...</div></div>
+      </div>
+
+      <!-- Add / Edit form -->
+      <div class="admin-card" style="height:fit-content">
+        <div class="admin-card-header"><h3 id="formTitle">Add Banner</h3></div>
+        <div style="padding:1.5rem">
+          <input type="hidden" id="editId">
+          <div class="form-group"><label>Heading *</label><input type="text" id="bHeading" placeholder="Handcrafted with Love"></div>
+          <div class="form-group"><label>Subheading</label><input type="text" id="bSubheading" placeholder="Discover our floral collection..."></div>
+          <div class="form-group"><label>Button Text</label><input type="text" id="bBtnText" placeholder="Shop Now"></div>
+          <div class="form-group"><label>Button Link</label><input type="text" id="bBtnLink" placeholder="/pages/shop.html"></div>
+          <div class="form-group"><label>Background Image URL</label><input type="text" id="bImage" placeholder="https://..." oninput="updatePreview()"></div>
+          <div class="form-group"><label>Overlay Colour</label><input type="color" id="bOverlay" value="#4A2878" style="width:60px;height:36px;border:1px solid var(--border);border-radius:8px;padding:2px;cursor:pointer"></div>
+          <div class="form-group"><label>Sort Order</label><input type="number" id="bSort" value="0" min="0"></div>
+          <div class="form-group"><label class="toggle-label"><input type="checkbox" id="bActive" checked><span>Active (show on site)</span></label></div>
+
+          <!-- Live Preview -->
+          <div class="banner-preview" id="bannerPreview">
+            <div class="banner-preview-text"><div style="font-size:1.1rem;font-weight:600">Heading preview</div><div style="font-size:.8rem;opacity:.8;margin-top:.25rem">Subheading here</div></div>
+          </div>
+
+          <div style="display:flex;gap:.75rem">
+            <button class="btn btn-secondary" onclick="resetForm()" style="flex:1">Clear</button>
+            <button class="btn btn-primary" onclick="saveBanner()" style="flex:1">Save</button>
+          </div>
+          <button id="deleteBtn" class="btn btn-danger" onclick="deleteBanner()" style="width:100%;margin-top:.5rem;display:none">Delete Banner</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script type="module">
+import { supabase, requireAdmin, adminSignOut, showToast } from './js/admin.js';
+window.adminSignOut = adminSignOut;
+
+let all = [];
+
+async function init() {
+  const auth = await requireAdmin();
+  if (!auth) return;
+  const name = `${auth.profile.first_name||''} ${auth.profile.last_name||''}`.trim() || 'Admin';
+  document.getElementById('adminNameEl').textContent = name;
+  document.getElementById('adminAvatarEl').textContent = name[0].toUpperCase();
+  load();
+}
+
+async function load() {
+  const { data } = await supabase.from('banners').select('*').order('sort_order,created_at');
+  all = data || [];
+  render();
+}
+
+function render() {
+  const el = document.getElementById('bannersList');
+  if (!all.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">🖼️</div><h3>No banners yet</h3><p>Add your first hero banner</p></div>';
+    return;
+  }
+  el.innerHTML = all.map(b => `
+    <div class="banner-card">
+      <div class="admin-card-header">
+        <div>
+          <div style="font-weight:600;color:var(--text-dark);font-size:.95rem">${b.heading}</div>
+          <div class="banner-card-meta">${b.subheading||''} · Sort: ${b.sort_order||0}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:.75rem">
+          ${b.is_active ? '<span class="badge badge-delivered">Active</span>' : '<span class="badge badge-cancelled">Hidden</span>'}
+          <button class="btn btn-secondary btn-sm" onclick="editBanner('${b.id}')">Edit</button>
+        </div>
+      </div>
+      <div style="position:relative;aspect-ratio:16/5;background:${b.overlay_color||'#4A2878'};overflow:hidden">
+        ${b.image_url ? `<img src="${b.image_url}" alt="${b.heading}" style="width:100%;height:100%;object-fit:cover;opacity:.6">` : ''}
+        <div style="position:absolute;inset:0;display:flex;align-items:center;padding:1.5rem">
+          <div style="color:white"><div style="font-size:1.25rem;font-weight:600">${b.heading}</div>${b.subheading?`<div style="font-size:.85rem;opacity:.8;margin-top:.25rem">${b.subheading}</div>`:''}</div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+window.editBanner = (id) => {
+  const b = all.find(x => x.id === id);
+  if (!b) return;
+  document.getElementById('editId').value = id;
+  document.getElementById('bHeading').value = b.heading||'';
+  document.getElementById('bSubheading').value = b.subheading||'';
+  document.getElementById('bBtnText').value = b.button_text||'';
+  document.getElementById('bBtnLink').value = b.button_link||'';
+  document.getElementById('bImage').value = b.image_url||'';
+  document.getElementById('bOverlay').value = b.overlay_color||'#4A2878';
+  document.getElementById('bSort').value = b.sort_order||0;
+  document.getElementById('bActive').checked = b.is_active !== false;
+  document.getElementById('formTitle').textContent = 'Edit Banner';
+  document.getElementById('deleteBtn').style.display = 'flex';
+  updatePreview();
+};
+
+window.resetForm = () => {
+  document.getElementById('editId').value = '';
+  ['bHeading','bSubheading','bBtnText','bBtnLink','bImage'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('bOverlay').value = '#4A2878';
+  document.getElementById('bSort').value = 0;
+  document.getElementById('bActive').checked = true;
+  document.getElementById('formTitle').textContent = 'Add Banner';
+  document.getElementById('deleteBtn').style.display = 'none';
+  updatePreview();
+};
+
+window.updatePreview = () => {
+  const heading = document.getElementById('bHeading').value || 'Heading preview';
+  const sub = document.getElementById('bSubheading').value || 'Subheading here';
+  const imgUrl = document.getElementById('bImage').value;
+  const color = document.getElementById('bOverlay').value;
+  const preview = document.getElementById('bannerPreview');
+  preview.style.background = color;
+  const img = preview.querySelector('img');
+  if (imgUrl) {
+    if (!img) { const i=document.createElement('img'); i.style.cssText='width:100%;height:100%;object-fit:cover;position:absolute;inset:0;opacity:.5'; preview.prepend(i); }
+    preview.querySelector('img').src = imgUrl;
+  } else { img?.remove(); }
+  preview.querySelector('.banner-preview-text').innerHTML = `<div style="font-size:1.1rem;font-weight:600">${heading}</div><div style="font-size:.8rem;opacity:.8;margin-top:.25rem">${sub}</div>`;
+};
+
+['bHeading','bSubheading','bOverlay'].forEach(id => {
+  document.getElementById(id)?.addEventListener('input', updatePreview);
+});
+
+window.saveBanner = async () => {
+  const id = document.getElementById('editId').value;
+  const heading = document.getElementById('bHeading').value.trim();
+  if (!heading) { showToast('Heading is required', 'error'); return; }
+
+  const payload = {
+    heading,
+    subheading: document.getElementById('bSubheading').value.trim() || null,
+    button_text: document.getElementById('bBtnText').value.trim() || null,
+    button_link: document.getElementById('bBtnLink').value.trim() || null,
+    image_url: document.getElementById('bImage').value.trim() || null,
+    overlay_color: document.getElementById('bOverlay').value,
+    sort_order: parseInt(document.getElementById('bSort').value)||0,
+    is_active: document.getElementById('bActive').checked,
+    updated_at: new Date().toISOString()
+  };
+  if (!id) payload.created_at = new Date().toISOString();
+
+  const { error } = id
+    ? await supabase.from('banners').update(payload).eq('id', id)
+    : await supabase.from('banners').insert(payload);
+
+  if (error) { showToast('Error: '+error.message, 'error'); return; }
+  showToast(id ? 'Banner updated!' : 'Banner created!');
+  resetForm();
+  load();
+};
+
+window.deleteBanner = async () => {
+  const id = document.getElementById('editId').value;
+  if (!id || !confirm('Delete this banner?')) return;
+  const { error } = await supabase.from('banners').delete().eq('id', id);
+  if (error) { showToast('Error: '+error.message, 'error'); return; }
+  showToast('Banner deleted');
+  resetForm();
+  load();
+};
+
+init();
+</script>
+</body>
+</html>

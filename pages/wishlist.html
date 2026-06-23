@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Wishlist — Halo Buds</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Great+Vibes&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/main.css">
+<style>
+.page-hero { background:linear-gradient(135deg,#f8f5ff 0%,#fdf2f8 100%); padding:3rem 0 2rem; text-align:center; }
+.page-hero .script-title { font-family:'Great Vibes',cursive; font-size:2rem; color:var(--purple-brand); display:block; }
+.page-hero h1 { font-family:'Cormorant Garamond',serif; font-size:2.5rem; font-weight:400; color:var(--text-dark); margin:.25rem 0; }
+.wishlist-section { padding:3rem 0; }
+.wishlist-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem; }
+.wishlist-header h2 { font-family:'Cormorant Garamond',serif; font-size:1.6rem; font-weight:400; color:var(--text-dark); }
+.wishlist-count { font-family:'Jost',sans-serif; font-size:.9rem; color:var(--text-light); }
+.btn-clear { padding:.5rem 1.25rem; border:1.5px solid var(--border); border-radius:8px; font-family:'Jost',sans-serif; font-size:.82rem; color:var(--text-medium); background:none; cursor:pointer; transition:all .2s; }
+.btn-clear:hover { border-color:#e53e3e; color:#e53e3e; }
+.wishlist-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1.5rem; }
+.wish-card { background:white; border-radius:16px; border:1px solid var(--border); overflow:hidden; transition:all .3s; }
+.wish-card:hover { transform:translateY(-4px); box-shadow:0 12px 40px rgba(107,63,160,.1); }
+.wish-img-wrap { position:relative; aspect-ratio:4/5; overflow:hidden; background:linear-gradient(135deg,var(--purple-pale),#fce7f3); }
+.wish-img-wrap img { width:100%; height:100%; object-fit:cover; transition:transform .4s; }
+.wish-card:hover .wish-img-wrap img { transform:scale(1.04); }
+.wish-placeholder { width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:3rem; }
+.wish-remove-btn { position:absolute; top:.75rem; right:.75rem; width:32px; height:32px; background:white; border:none; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:.9rem; box-shadow:0 2px 10px rgba(0,0,0,.12); transition:all .2s; color:#e53e3e; }
+.wish-remove-btn:hover { background:#fff5f5; transform:scale(1.1); }
+.wish-info { padding:1rem; }
+.wish-category { font-family:'Jost',sans-serif; font-size:.72rem; font-weight:500; letter-spacing:.08em; text-transform:uppercase; color:var(--purple-brand); margin-bottom:.3rem; }
+.wish-name { font-family:'Cormorant Garamond',serif; font-size:1.05rem; font-weight:600; color:var(--text-dark); margin-bottom:.5rem; text-decoration:none; display:block; line-height:1.3; }
+.wish-name:hover { color:var(--purple-brand); }
+.wish-price-row { display:flex; align-items:center; gap:.5rem; margin-bottom:.875rem; }
+.wish-price { font-family:'Jost',sans-serif; font-size:.95rem; font-weight:600; color:var(--purple-brand); }
+.wish-original { font-family:'Jost',sans-serif; font-size:.82rem; color:var(--text-light); text-decoration:line-through; }
+.btn-add-cart { width:100%; padding:.65rem; background:var(--purple-brand); color:white; border:none; border-radius:8px; font-family:'Jost',sans-serif; font-size:.85rem; font-weight:500; cursor:pointer; transition:all .25s; }
+.btn-add-cart:hover { background:var(--purple-deep); }
+.btn-add-cart.added { background:#48bb78; }
+.empty-wishlist { text-align:center; padding:5rem 2rem; }
+.empty-wishlist .icon { font-size:5rem; margin-bottom:1.25rem; }
+.empty-wishlist h2 { font-family:'Cormorant Garamond',serif; font-size:2.2rem; font-weight:400; color:var(--text-dark); margin-bottom:.75rem; }
+.empty-wishlist p { font-family:'Jost',sans-serif; font-size:.95rem; color:var(--text-light); margin-bottom:2rem; }
+@media(max-width:900px) { .wishlist-grid { grid-template-columns:repeat(3,1fr); } }
+@media(max-width:600px) { .wishlist-grid { grid-template-columns:1fr 1fr; gap:1rem; } }
+</style>
+</head>
+<body>
+<header class="site-header" id="siteHeader">
+  <div class="container">
+    <div class="header-inner">
+      <a href="../index.html" class="logo"><div class="logo-mark">HB</div><div class="logo-text"><span class="logo-name">Halo Buds</span><span class="logo-tagline">Fully Handmade & Customized</span></div></a>
+      <nav class="main-nav"><a href="../index.html">Home</a><a href="shop.html">Shop</a><a href="custom-order.html">Custom Order</a><a href="about.html">About</a><a href="contact.html">Contact</a></nav>
+      <div class="header-actions">
+        <a href="cart.html" class="icon-btn"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><span class="cart-badge" id="cartCount">0</span></a>
+        <a href="account.html" class="icon-btn"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="page-hero">
+  <div class="container">
+    <span class="script-title">Things I love</span>
+    <h1>My Wishlist 💜</h1>
+  </div>
+</div>
+
+<div class="wishlist-section">
+  <div class="container" id="wishlistContainer">
+    <div style="text-align:center;padding:3rem;font-family:'Jost',sans-serif;color:var(--text-light);">Loading wishlist...</div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="container"><div class="footer-bottom"><p>© 2025 Halo Buds. All rights reserved.</p></div></div>
+</footer>
+
+<script type="module">
+import { Wishlist, Cart, Utils } from '../js/config.js';
+
+let items = [];
+
+async function load() {
+  const cartItems = await Cart.get();
+  document.getElementById('cartCount').textContent = cartItems.reduce((s,i)=>s+i.quantity,0);
+
+  items = await Wishlist.get();
+  render();
+}
+
+function render() {
+  const container = document.getElementById('wishlistContainer');
+  if (!items.length) {
+    container.innerHTML = `<div class="empty-wishlist">
+      <div class="icon">💜</div>
+      <h2>Your wishlist is empty</h2>
+      <p>Save items you love by tapping the heart icon on any product. They'll all live here!</p>
+      <a href="shop.html" class="btn-primary">Browse Collection</a>
+    </div>`;
+    return;
+  }
+
+  container.innerHTML = `
+    <div class="wishlist-header">
+      <div>
+        <h2>Saved Items</h2>
+        <div class="wishlist-count">${items.length} item${items.length !== 1 ? 's' : ''}</div>
+      </div>
+      <button class="btn-clear" onclick="clearAll()">Clear All</button>
+    </div>
+    <div class="wishlist-grid">
+      ${items.map(item => `
+        <div class="wish-card" id="wc-${item.product_id}">
+          <div class="wish-img-wrap">
+            ${item.image_url ? `<img src="${item.image_url}" alt="${item.name}" loading="lazy">` : '<div class="wish-placeholder">🌸</div>'}
+            <button class="wish-remove-btn" onclick="removeItem('${item.product_id}')" title="Remove from Wishlist">✕</button>
+          </div>
+          <div class="wish-info">
+            <div class="wish-category">${item.categories?.name || ''}</div>
+            <a href="product.html?slug=${item.slug}" class="wish-name">${item.name}</a>
+            <div class="wish-price-row">
+              <span class="wish-price">${Utils.formatPrice(item.sale_price || item.price)}</span>
+              ${item.sale_price ? `<span class="wish-original">${Utils.formatPrice(item.price)}</span>` : ''}
+            </div>
+            <button class="btn-add-cart" id="btn-${item.product_id}" onclick="addToCart('${item.product_id}','${item.name}',${item.sale_price||item.price},'${item.slug}')">Add to Cart</button>
+          </div>
+        </div>`).join('')}
+    </div>`;
+}
+
+window.removeItem = async (productId) => {
+  await Wishlist.toggle(productId);
+  items = items.filter(i => i.product_id !== productId);
+  const card = document.getElementById('wc-' + productId);
+  if (card) { card.style.opacity='0'; card.style.transform='scale(.9)'; card.style.transition='all .3s'; setTimeout(() => render(), 300); }
+};
+
+window.clearAll = async () => {
+  if (!confirm('Remove all items from your wishlist?')) return;
+  for (const item of items) await Wishlist.toggle(item.product_id);
+  items = [];
+  render();
+};
+
+window.addToCart = async (productId, name, price, slug) => {
+  const btn = document.getElementById('btn-' + productId);
+  btn.textContent = 'Adding...'; btn.disabled = true;
+  await Cart.add({ product_id: productId, product_name: name, price, slug, quantity: 1 });
+  btn.textContent = '✓ Added!'; btn.classList.add('added');
+  const cartItems = await Cart.get();
+  document.getElementById('cartCount').textContent = cartItems.reduce((s,i)=>s+i.quantity,0);
+  setTimeout(() => { btn.textContent = 'Add to Cart'; btn.classList.remove('added'); btn.disabled = false; }, 2000);
+};
+
+window.addEventListener('scroll', () => document.getElementById('siteHeader').classList.toggle('scrolled', window.scrollY>50));
+load();
+</script>
+</body>
+</html>

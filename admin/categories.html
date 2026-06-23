@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Categories — Halo Buds Admin</title>
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+<aside class="admin-sidebar">
+  <div class="sidebar-logo"><a href="index.html" class="brand"><div class="logo-mark-sm">HB</div><div><div class="sidebar-brand-text">Halo Buds</div><div class="sidebar-brand-sub">Admin Panel</div></div></a></div>
+  <nav class="admin-nav">
+    <div class="nav-section">Main</div><a href="index.html"><span class="nav-icon">📊</span> Dashboard</a><a href="orders.html"><span class="nav-icon">📦</span> Orders</a>
+    <div class="nav-section">Catalogue</div><a href="products.html"><span class="nav-icon">🛍️</span> Products</a><a href="categories.html" class="active"><span class="nav-icon">🗂️</span> Categories</a><a href="banners.html"><span class="nav-icon">🖼️</span> Banners</a>
+    <div class="nav-section">Customers</div><a href="customers.html"><span class="nav-icon">👥</span> Customers</a><a href="reviews.html"><span class="nav-icon">⭐</span> Reviews</a>
+    <div class="nav-section">Support</div><a href="messages.html"><span class="nav-icon">💬</span> Messages</a><a href="custom-requests.html"><span class="nav-icon">✏️</span> Custom Requests</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="admin-user"><div class="admin-avatar" id="adminAvatarEl">A</div><div class="admin-user-info"><div class="admin-user-name" id="adminNameEl">Admin</div><div class="admin-user-role">Administrator</div></div></div>
+    <a href="../index.html" class="view-site-link" target="_blank">🌐 View Site ↗</a>
+    <button class="btn-logout" onclick="adminSignOut()">🚪 Sign Out</button>
+  </div>
+</aside>
+
+<main class="admin-main">
+  <div class="admin-topbar">
+    <div class="topbar-title">Categories</div>
+    <div class="topbar-actions">
+      <button class="btn btn-primary" onclick="openModal()">+ Add Category</button>
+    </div>
+  </div>
+
+  <div class="admin-content">
+    <div style="display:grid;grid-template-columns:1fr 360px;gap:1.5rem">
+      <!-- Categories table -->
+      <div class="admin-card">
+        <div class="table-toolbar">
+          <div class="search-input-wrap">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="text" id="searchInput" placeholder="Search categories..." oninput="filterCategories()">
+          </div>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>Icon</th><th>Name</th><th>Slug</th><th>Products</th><th>Sort</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="catTableBody"><tr><td colspan="7" class="loading">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Quick add / edit form -->
+      <div class="admin-card" style="height:fit-content">
+        <div class="admin-card-header"><h3 id="formTitle">Add Category</h3></div>
+        <div style="padding:1.5rem">
+          <input type="hidden" id="editId">
+          <div class="form-group"><label>Name *</label><input type="text" id="cName" placeholder="e.g. Floral Crowns"></div>
+          <div class="form-group"><label>Slug (auto-generated)</label><input type="text" id="cSlug" placeholder="floral-crowns"></div>
+          <div class="form-group"><label>Icon / Emoji</label><input type="text" id="cIcon" placeholder="🌸" maxlength="4"></div>
+          <div class="form-group"><label>Description</label><textarea id="cDesc" placeholder="Short description..." style="min-height:70px"></textarea></div>
+          <div class="form-group"><label>Image URL</label><input type="text" id="cImage" placeholder="https://..."></div>
+          <div class="form-group"><label>Sort Order</label><input type="number" id="cSort" value="0" min="0"></div>
+          <div class="form-group">
+            <label class="toggle-label"><input type="checkbox" id="cActive" checked><span>Active (show in nav)</span></label>
+          </div>
+          <div style="display:flex;gap:.75rem;margin-top:.25rem">
+            <button class="btn btn-secondary" onclick="resetForm()" style="flex:1">Clear</button>
+            <button class="btn btn-primary" onclick="saveCategory()" style="flex:1">Save</button>
+          </div>
+          <button id="deleteBtn" class="btn btn-danger" onclick="deleteCategory()" style="width:100%;margin-top:.5rem;display:none">Delete Category</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script type="module">
+import { supabase, requireAdmin, adminSignOut, showToast } from './js/admin.js';
+window.adminSignOut = adminSignOut;
+
+let all = [], filtered = [];
+
+async function init() {
+  const auth = await requireAdmin();
+  if (!auth) return;
+  const name = `${auth.profile.first_name||''} ${auth.profile.last_name||''}`.trim() || 'Admin';
+  document.getElementById('adminNameEl').textContent = name;
+  document.getElementById('adminAvatarEl').textContent = name[0].toUpperCase();
+  load();
+}
+
+async function load() {
+  // Get categories with product counts
+  const { data: cats } = await supabase.from('categories').select('*').order('sort_order,name');
+  const { data: prodCounts } = await supabase.from('products').select('category_id').eq('is_active', true);
+  const counts = {};
+  (prodCounts||[]).forEach(p => { counts[p.category_id] = (counts[p.category_id]||0)+1; });
+  all = (cats||[]).map(c => ({ ...c, productCount: counts[c.id]||0 }));
+  filtered = [...all];
+  render();
+}
+
+window.filterCategories = () => {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  filtered = all.filter(c => !q || c.name.toLowerCase().includes(q) || c.slug.includes(q));
+  render();
+};
+
+function render() {
+  const tbody = document.getElementById('catTableBody');
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">🗂️</div><h3>No categories yet</h3><p>Add your first category</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = filtered.map(c => `<tr>
+    <td style="font-size:1.5rem">${c.icon||'📦'}</td>
+    <td class="cell-bold">${c.name}</td>
+    <td class="text-sm">${c.slug}</td>
+    <td><span style="font-weight:600;color:var(--purple-brand)">${c.productCount}</span></td>
+    <td class="text-sm">${c.sort_order||0}</td>
+    <td>${c.is_active ? '<span class="badge badge-delivered">Active</span>' : '<span class="badge badge-cancelled">Hidden</span>'}</td>
+    <td><button class="btn btn-secondary btn-sm" onclick="editCategory('${c.id}')">Edit</button></td>
+  </tr>`).join('');
+}
+
+window.editCategory = (id) => {
+  const c = all.find(x => x.id === id);
+  if (!c) return;
+  document.getElementById('editId').value = id;
+  document.getElementById('cName').value = c.name||'';
+  document.getElementById('cSlug').value = c.slug||'';
+  document.getElementById('cIcon').value = c.icon||'';
+  document.getElementById('cDesc').value = c.description||'';
+  document.getElementById('cImage').value = c.image_url||'';
+  document.getElementById('cSort').value = c.sort_order||0;
+  document.getElementById('cActive').checked = c.is_active !== false;
+  document.getElementById('formTitle').textContent = 'Edit Category';
+  document.getElementById('deleteBtn').style.display = 'flex';
+};
+
+window.resetForm = () => {
+  document.getElementById('editId').value = '';
+  ['cName','cSlug','cIcon','cDesc','cImage'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('cSort').value = 0;
+  document.getElementById('cActive').checked = true;
+  document.getElementById('formTitle').textContent = 'Add Category';
+  document.getElementById('deleteBtn').style.display = 'none';
+};
+
+// Auto-generate slug from name
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('cName').addEventListener('input', (e) => {
+    if (!document.getElementById('editId').value) {
+      document.getElementById('cSlug').value = e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    }
+  });
+});
+
+window.saveCategory = async () => {
+  const id = document.getElementById('editId').value;
+  const name = document.getElementById('cName').value.trim();
+  if (!name) { showToast('Name is required', 'error'); return; }
+
+  const slug = document.getElementById('cSlug').value.trim() || name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+  const payload = {
+    name, slug,
+    icon: document.getElementById('cIcon').value.trim() || null,
+    description: document.getElementById('cDesc').value.trim() || null,
+    image_url: document.getElementById('cImage').value.trim() || null,
+    sort_order: parseInt(document.getElementById('cSort').value)||0,
+    is_active: document.getElementById('cActive').checked,
+    updated_at: new Date().toISOString()
+  };
+  if (!id) payload.created_at = new Date().toISOString();
+
+  const { error } = id
+    ? await supabase.from('categories').update(payload).eq('id', id)
+    : await supabase.from('categories').insert(payload);
+
+  if (error) { showToast('Error: '+error.message, 'error'); return; }
+  showToast(id ? 'Category updated!' : 'Category created!');
+  resetForm();
+  load();
+};
+
+window.deleteCategory = async () => {
+  const id = document.getElementById('editId').value;
+  if (!id || !confirm('Delete this category? Products in it will become uncategorised.')) return;
+  const { error } = await supabase.from('categories').delete().eq('id', id);
+  if (error) { showToast('Error: '+error.message, 'error'); return; }
+  showToast('Category deleted');
+  resetForm();
+  load();
+};
+
+init();
+</script>
+</body>
+</html>

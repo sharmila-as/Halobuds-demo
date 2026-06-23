@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FAQ — Halo Buds</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Great+Vibes&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/main.css">
+<style>
+.page-hero { background:linear-gradient(135deg,#f8f5ff 0%,#fdf2f8 100%); padding:4rem 0 2.5rem; text-align:center; }
+.page-hero .script { font-family:'Great Vibes',cursive; font-size:2.5rem; color:var(--purple-brand); display:block; }
+.page-hero h1 { font-family:'Cormorant Garamond',serif; font-size:3rem; font-weight:400; color:var(--text-dark); margin:.25rem 0 1rem; }
+.page-hero p { font-family:'Jost',sans-serif; font-size:.95rem; color:var(--text-light); max-width:480px; margin:0 auto; }
+.faq-search-wrap { max-width:480px; margin:1.5rem auto 0; display:flex; gap:.5rem; background:white; border:1.5px solid var(--border); border-radius:100px; padding:.4rem .4rem .4rem 1.25rem; }
+.faq-search-wrap input { flex:1; border:none; outline:none; font-family:'Jost',sans-serif; font-size:.9rem; background:transparent; }
+.faq-search-wrap button { padding:.55rem 1.25rem; background:var(--purple-brand); color:white; border:none; border-radius:100px; font-family:'Jost',sans-serif; font-size:.85rem; font-weight:500; cursor:pointer; }
+.faq-section { padding:4rem 0; }
+.faq-layout { display:grid; grid-template-columns:220px 1fr; gap:3rem; }
+.faq-nav { position:sticky; top:100px; height:fit-content; }
+.faq-nav-title { font-family:'Jost',sans-serif; font-size:.75rem; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--text-light); margin-bottom:.75rem; }
+.faq-nav a { display:flex; align-items:center; gap:.6rem; padding:.6rem .875rem; border-radius:10px; font-family:'Jost',sans-serif; font-size:.875rem; color:var(--text-medium); text-decoration:none; transition:all .2s; margin-bottom:.25rem; }
+.faq-nav a:hover { background:var(--purple-pale); color:var(--purple-brand); }
+.faq-nav a.active { background:var(--purple-pale); color:var(--purple-brand); font-weight:500; }
+.faq-content { }
+.faq-category { margin-bottom:3rem; }
+.faq-category h2 { font-family:'Cormorant Garamond',serif; font-size:1.8rem; font-weight:400; color:var(--text-dark); margin-bottom:1.25rem; display:flex; align-items:center; gap:.6rem; }
+.faq-item { border:1px solid var(--border); border-radius:14px; margin-bottom:.75rem; overflow:hidden; transition:all .25s; }
+.faq-item.open { border-color:rgba(107,63,160,.3); box-shadow:0 4px 20px rgba(107,63,160,.08); }
+.faq-question { display:flex; align-items:center; justify-content:space-between; padding:1.25rem 1.5rem; cursor:pointer; background:white; transition:background .2s; gap:1rem; }
+.faq-question:hover { background:var(--purple-pale); }
+.faq-q-text { font-family:'Jost',sans-serif; font-size:.95rem; font-weight:500; color:var(--text-dark); }
+.faq-chevron { width:20px; height:20px; flex-shrink:0; color:var(--purple-brand); transition:transform .3s; }
+.faq-item.open .faq-chevron { transform:rotate(180deg); }
+.faq-answer { display:none; padding:0 1.5rem 1.25rem; background:white; }
+.faq-item.open .faq-answer { display:block; }
+.faq-answer p { font-family:'Jost',sans-serif; font-size:.9rem; color:var(--text-medium); line-height:1.7; margin-bottom:.75rem; }
+.faq-answer p:last-child { margin-bottom:0; }
+.faq-answer a { color:var(--purple-brand); text-decoration:none; }
+.faq-answer a:hover { text-decoration:underline; }
+.faq-answer ul { font-family:'Jost',sans-serif; font-size:.9rem; color:var(--text-medium); line-height:1.7; padding-left:1.5rem; }
+.faq-answer li { margin-bottom:.4rem; }
+.no-results { text-align:center; padding:3rem; font-family:'Jost',sans-serif; color:var(--text-light); }
+.contact-cta { background:linear-gradient(135deg,var(--purple-pale),#fce7f3); border-radius:20px; padding:2.5rem; text-align:center; margin-top:2rem; }
+.contact-cta h3 { font-family:'Cormorant Garamond',serif; font-size:1.8rem; font-weight:400; color:var(--text-dark); margin-bottom:.5rem; }
+.contact-cta p { font-family:'Jost',sans-serif; font-size:.9rem; color:var(--text-medium); margin-bottom:1.5rem; }
+.cta-btns { display:flex; gap:.75rem; justify-content:center; flex-wrap:wrap; }
+.btn-sm-cta { padding:.75rem 1.5rem; border-radius:100px; font-family:'Jost',sans-serif; font-size:.875rem; font-weight:500; text-decoration:none; transition:all .25s; }
+.btn-sm-primary { background:var(--purple-brand); color:white; }
+.btn-sm-primary:hover { background:var(--purple-deep); }
+.btn-sm-wa { background:#25d366; color:white; }
+.btn-sm-wa:hover { background:#22c55e; }
+@media(max-width:768px) {
+  .faq-layout { grid-template-columns:1fr; }
+  .faq-nav { position:static; display:flex; flex-wrap:wrap; gap:.5rem; margin-bottom:1rem; }
+  .faq-nav-title { display:none; }
+  .faq-nav a { padding:.45rem .875rem; background:var(--purple-pale); color:var(--purple-brand); border-radius:100px; font-size:.8rem; }
+}
+</style>
+</head>
+<body>
+<header class="site-header" id="siteHeader">
+  <div class="container">
+    <div class="header-inner">
+      <a href="../index.html" class="logo"><div class="logo-mark">HB</div><div class="logo-text"><span class="logo-name">Halo Buds</span><span class="logo-tagline">Fully Handmade & Customized</span></div></a>
+      <nav class="main-nav"><a href="../index.html">Home</a><a href="shop.html">Shop</a><a href="custom-order.html">Custom Order</a><a href="about.html">About</a><a href="contact.html">Contact</a></nav>
+      <div class="header-actions">
+        <a href="cart.html" class="icon-btn"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><span class="cart-badge" id="cartCount">0</span></a>
+        <a href="account.html" class="icon-btn"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="page-hero">
+  <div class="container">
+    <span class="script">Got questions?</span>
+    <h1>Frequently Asked Questions</h1>
+    <p>Everything you need to know about Halo Buds, orders, shipping, and more.</p>
+    <div class="faq-search-wrap">
+      <input type="text" id="faqSearch" placeholder="Search questions..." oninput="filterFAQ(this.value)">
+      <button onclick="filterFAQ(document.getElementById('faqSearch').value)">Search</button>
+    </div>
+  </div>
+</div>
+
+<div class="faq-section">
+  <div class="container">
+    <div class="faq-layout">
+      <div class="faq-nav" id="faqNav">
+        <div class="faq-nav-title">Categories</div>
+        <a href="#orders" class="active">📦 Orders</a>
+        <a href="#customization">🎨 Customization</a>
+        <a href="#shipping">🚚 Shipping</a>
+        <a href="#payment">💳 Payment</a>
+        <a href="#returns">↩️ Returns</a>
+        <a href="#products">🌸 Products</a>
+      </div>
+
+      <div class="faq-content" id="faqContent">
+        <!-- Orders -->
+        <div class="faq-category" id="orders">
+          <h2>📦 Orders</h2>
+          <div class="faq-item"><div class="faq-question" onclick="toggleFAQ(this)"><span class="faq-q-text">How do I place an order?</span><svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-answer"><p>Simply browse our shop, choose your product, select any customization options, and add it to your cart. You can then proceed to checkout with your shipping details and preferred payment method.</p><p>For fully custom orders (not in our standard catalogue), use the <a href="custom-order.html">Custom Order</a> page to submit your request.</p></div></div>
+          <div class="faq-item"><div class="faq-question" onclick="toggleFAQ(this)"><span class="faq-q-text">Can I modify or cancel my order after placing it?</span><svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-answer"><p>Since all our products are handmade and crafting begins immediately after order confirmation, we can only accommodate modifications or cancellations within <strong>2 hours</strong> of placing the order.</p><p>Please <a href="contact.html">contact us</a> immediately via WhatsApp for the fastest response. After 2 hours, the order may already be in production.</p></div></div>
+          <div class="faq-item"><div class="faq-question" onclick="toggleFAQ(this)"><span class="faq-q-text">How do I track my order?</span><svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-answer"><p>Once your order is shipped, you'll receive an email with tracking details. You can also track your order anytime on our <a href="track-order.html">Track Order</a> page using your order number.</p><p>Your order number is in your confirmation email and in My Account → Orders.</p></div></div>
+          <div class="faq-item"><div class="faq-question" onclick="toggleFAQ(this)"><span class="faq-q-text">What is the processing time for orders?</span><svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-answer"><p>Standard products are processed in <strong>2–3 business days</strong>. Customized products take <strong>3–5 business days</strong>, and complex custom orders may take up to 7 business days.</p><p>Processing time is separate from shipping time. If you need something urgently, please mention it in the order notes or contact us before ordering.</p></div></div>
+        </div>
+
+        <!-- Customization -->
+        <div class="faq-category" id="customization">
+          <h2>🎨 Customization</h2>
+          <div class="faq-item"><div class="faq-question" onclick="toggleFAQ(this)"><span class="faq-q-text">What customization options do you offer?</span><svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-answer"><p>Most of our products can be customized with:</p><ul><li>A custom name or initial</li><li>A personal message card</li><li>Choice of color palette</li><li>Photo inclusion (on certain products)</li><li>Size variations</li><li>Flower/material preferences</li></ul><p>Each product page shows the specific customization options available for that item.</p></div></div>
+          <div class="faq-item"><div class="faq-question" onclick="toggleFAQ(this)"><span class="faq-q-text">Can I request something not in your catalogue?</span><svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-answer"><p>Absolutely! That's what our <a href="custom-order.html">Custom Order</a> page is for. Tell us your vision, share reference photos, set a budget, and we'll create something unique just for you.</p><p>After you submit the form, our team will respond within 24 hours with a quote and timeline.</p></div></div>
+          <div class="faq-item"><div class="faq-question" onclick="toggleFAQ(this)"><span class="faq-q-text">Do you accept corporate or bulk orders?</span><svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-answer"><p>Yes! We love bulk orders for events, weddings, corporate gifting, and festivals. Discounts are available for orders above 20 pieces.</p><p>Please <a href="contact.html">contact us</a> with your requirements and we'll prepare a custom quote for you.</p></div></div>
+        </div>
+
+        <!-- Shipping -->
+        <div class="faq-category" id="shipping">
+          <h2>🚚 Shipping</h2>
+          <div class="faq-item"><div class="faq-question" onclick="toggleFAQ(this)"><span class="faq-q-text">Where do you ship?</span><svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-answer"><p>We ship across all of India! We currently do not ship internationally, but are working on it.</p></div></div>
+          <div class="faq-item"><div class="faq-question" onclick="toggleFAQ(this)"><span class="faq-q-text">What are the shipping charges?</span><svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-answer"><p>Standard shipping is <strong>₹80</strong> for orders below ₹999.</p><p>Orders above <strong>₹999 get FREE shipping!</strong></p><p>Express shipping (1–2 days) is available for an additional ₹150 and can be selected at checkout.</p></div></div>
+          <div class="faq-item"><div class="faq-question" onclick="toggleFAQ(this)"><span class="faq-q-text">How long does delivery take?</span><svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-answer"><p>After your order is processed and shipped, delivery typically takes:</p><ul><li><strong>Metro cities</strong> (Chennai, Mumbai, Delhi, Bangalore): 2–3 business days</li><li><strong>Tier 2 cities</strong>: 3–5 business days</li><li><strong>Remote areas</strong>: 5–7 business days</li></ul></div></div>
+          <div class="faq-item"><div class="faq-question" onclick="toggleFAQ(this)"><span class="faq-q-text">Is my order packaged safely for transit?</span><svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-answer"><p>Absolutely. We use protective packaging specifically designed for delicate handmade items — sturdy boxes, tissue wrapping, and padding to ensure your creation arrives in perfect condition.</p><p>All orders also come in our beautiful signature packaging, making it gift-ready right out of the box! 🎁</p></div></div>
+        </div>
+
+        <!-- Payment -->
+        <div class="faq-category" id="payment">
+          <h2>💳 Payment</h2>
+          <div class="faq-item"><div class="faq-question" onclick="toggleFAQ(this)"><span class="faq-q-text">What payment methods do you accept?</span><svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-answer"><p>We accept all major payment methods:</p><ul><li>Credit & Debit Cards (Visa, Mastercard, RuPay)</li><li>UPI (PhonePe, Google Pay, Paytm, BHIM)</li><li>Net Banking (all major Indian banks)</li><li>Cash on Delivery (for orders up to ₹5,000)</li></ul><p>All online payments are secured by Razorpay with SSL encryption.</p></div></div>
+          <div class="faq-item"><div class="faq-question" onclick="toggleFAQ(this)"><span class="faq-q-text">Is my payment information safe?</span><svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-answer"><p>100% yes. We use Razorpay, a PCI-DSS compliant payment gateway trusted by thousands of Indian businesses. We never store your card details on our servers.</p></div></div>
+          <div class="faq-item"><div class="faq-question" onclick="toggleFAQ(this)"><span class="faq-q-text">Do you offer EMI or payment plans?</span><svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-answer"><p>EMI options are available through select credit cards via Razorpay for orders above ₹3,000. The options will be shown at checkout if your card is eligible.</p></div></div>
+        </div>
+
+        <!-- Returns -->
+        <div class="faq-category" id="returns">
+          <h2>↩️ Returns & Exchanges</h2>
+          <div class="faq-item"><div class="faq-question" onclick="toggleFAQ(this)"><span class="faq-q-text">What is your return policy?</span><svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-answer"><p>Since our products are handmade and often personalized, we have a <strong>7-day return window</strong> for non-customized items in original condition.</p><p>Customized items (with names, messages, or photos) are <strong>non-returnable</strong> unless there's a defect or damage in transit.</p></div></div>
+          <div class="faq-item"><div class="faq-question" onclick="toggleFAQ(this)"><span class="faq-q-text">What if my order arrives damaged?</span><svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-answer"><p>We're so sorry if this happens! Please take photos of the damaged item and packaging, and contact us within <strong>24 hours of delivery</strong> via WhatsApp or email with your order number.</p><p>We'll either replace the item or issue a full refund — your choice, no questions asked.</p></div></div>
+          <div class="faq-item"><div class="faq-question" onclick="toggleFAQ(this)"><span class="faq-q-text">How long do refunds take?</span><svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-answer"><p>Refunds are processed within <strong>5–7 business days</strong> after we receive the returned item (for eligible returns). The amount will be credited to your original payment method.</p></div></div>
+        </div>
+
+        <!-- Products -->
+        <div class="faq-category" id="products">
+          <h2>🌸 Products</h2>
+          <div class="faq-item"><div class="faq-question" onclick="toggleFAQ(this)"><span class="faq-q-text">Are the flowers real or artificial?</span><svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-answer"><p>We use a mix of both, clearly mentioned on each product page. Our hair accessories and long-lasting items typically use high-quality artificial flowers or dried flowers. Event-specific pieces can be made with fresh flowers upon request (add-on service).</p></div></div>
+          <div class="faq-item"><div class="faq-question" onclick="toggleFAQ(this)"><span class="faq-q-text">How do I care for my Halo Buds creation?</span><svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-answer"><p>Care instructions vary by product and are included in the packaging. General tips:</p><ul><li>Store in a cool, dry place away from direct sunlight</li><li>Keep in the original box when not in use</li><li>Avoid contact with water or perfume</li><li>Handle delicate flowers gently</li></ul></div></div>
+          <div class="faq-item"><div class="faq-question" onclick="toggleFAQ(this)"><span class="faq-q-text">Do product colors look the same in person as in photos?</span><svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-answer"><p>We photograph all products under natural lighting to show accurate colors. However, screens vary, so there may be slight differences. Since items are handmade, there may also be minor natural variations from the photo — this is what makes each piece unique!</p></div></div>
+        </div>
+
+        <div class="contact-cta">
+          <h3>Still have questions?</h3>
+          <p>Can't find your answer here? We're happy to help — reach out any time!</p>
+          <div class="cta-btns">
+            <a href="contact.html" class="btn-sm-cta btn-sm-primary">Send a Message</a>
+            <a href="https://wa.me/919876543210" target="_blank" class="btn-sm-cta btn-sm-wa">💬 WhatsApp Us</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="container"><div class="footer-bottom"><p>© 2025 Halo Buds. All rights reserved.</p></div></div>
+</footer>
+
+<script>
+function toggleFAQ(el) {
+  const item = el.closest('.faq-item');
+  const wasOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+  if (!wasOpen) item.classList.add('open');
+}
+
+function filterFAQ(q) {
+  const ql = q.toLowerCase().trim();
+  const content = document.getElementById('faqContent');
+  if (!ql) {
+    content.querySelectorAll('.faq-item,.faq-category').forEach(el => el.style.display='');
+    document.querySelector('.contact-cta').style.display='';
+    return;
+  }
+  let anyVisible = false;
+  content.querySelectorAll('.faq-category').forEach(cat => {
+    let catVisible = false;
+    cat.querySelectorAll('.faq-item').forEach(item => {
+      const text = item.textContent.toLowerCase();
+      const match = text.includes(ql);
+      item.style.display = match ? '' : 'none';
+      if (match) { catVisible = true; anyVisible = true; item.classList.add('open'); }
+    });
+    cat.style.display = catVisible ? '' : 'none';
+  });
+  document.querySelector('.contact-cta').style.display = anyVisible ? '' : 'none';
+  if (!anyVisible) {
+    let noRes = content.querySelector('.no-results');
+    if (!noRes) { noRes = document.createElement('div'); noRes.className='no-results'; content.appendChild(noRes); }
+    noRes.innerHTML = `<p>No results for "<strong>${q}</strong>". Try different keywords or <a href="contact.html" style="color:var(--purple-brand)">contact us</a>.</p>`;
+  } else {
+    content.querySelector('.no-results')?.remove();
+  }
+}
+
+// Nav active highlighting on scroll
+const cats = document.querySelectorAll('.faq-category');
+const navLinks = document.querySelectorAll('.faq-nav a');
+window.addEventListener('scroll', () => {
+  let current = '';
+  cats.forEach(c => { if (window.scrollY >= c.offsetTop - 150) current = c.id; });
+  navLinks.forEach(a => { a.classList.toggle('active', a.getAttribute('href') === '#' + current); });
+  document.getElementById('siteHeader').classList.toggle('scrolled', window.scrollY > 50);
+});
+</script>
+</body>
+</html>

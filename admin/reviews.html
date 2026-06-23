@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reviews — Halo Buds Admin</title>
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+<aside class="admin-sidebar">
+  <div class="sidebar-logo"><a href="index.html" class="brand"><div class="logo-mark-sm">HB</div><div><div class="sidebar-brand-text">Halo Buds</div><div class="sidebar-brand-sub">Admin Panel</div></div></a></div>
+  <nav class="admin-nav">
+    <div class="nav-section">Main</div><a href="index.html"><span class="nav-icon">📊</span> Dashboard</a><a href="orders.html"><span class="nav-icon">📦</span> Orders</a>
+    <div class="nav-section">Catalogue</div><a href="products.html"><span class="nav-icon">🛍️</span> Products</a><a href="categories.html"><span class="nav-icon">🗂️</span> Categories</a><a href="banners.html"><span class="nav-icon">🖼️</span> Banners</a>
+    <div class="nav-section">Customers</div><a href="customers.html"><span class="nav-icon">👥</span> Customers</a><a href="reviews.html" class="active"><span class="nav-icon">⭐</span> Reviews</a>
+    <div class="nav-section">Support</div><a href="messages.html"><span class="nav-icon">💬</span> Messages</a><a href="custom-requests.html"><span class="nav-icon">✏️</span> Custom Requests</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="admin-user"><div class="admin-avatar" id="adminAvatarEl">A</div><div class="admin-user-info"><div class="admin-user-name" id="adminNameEl">Admin</div><div class="admin-user-role">Administrator</div></div></div>
+    <a href="../index.html" class="view-site-link" target="_blank">🌐 View Site ↗</a>
+    <button class="btn-logout" onclick="adminSignOut()">🚪 Sign Out</button>
+  </div>
+</aside>
+
+<main class="admin-main">
+  <div class="admin-topbar">
+    <div class="topbar-title">Reviews</div>
+    <div class="topbar-actions">
+      <span id="pendingCount" style="font-size:.875rem;color:var(--text-light)"></span>
+    </div>
+  </div>
+  <div class="admin-content">
+    <div class="admin-card">
+      <div class="table-toolbar">
+        <div class="search-input-wrap" style="max-width:280px">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input type="text" id="searchInput" placeholder="Search reviews..." oninput="filterReviews()">
+        </div>
+        <select class="filter-select" id="approvalFilter" onchange="filterReviews()">
+          <option value="">All Reviews</option>
+          <option value="false">Pending Approval</option>
+          <option value="true">Approved</option>
+        </select>
+        <select class="filter-select" id="ratingFilter" onchange="filterReviews()">
+          <option value="">All Ratings</option>
+          <option value="5">⭐⭐⭐⭐⭐ 5 Stars</option>
+          <option value="4">⭐⭐⭐⭐ 4 Stars</option>
+          <option value="3">⭐⭐⭐ 3 Stars</option>
+          <option value="2">⭐⭐ 2 Stars</option>
+          <option value="1">⭐ 1 Star</option>
+        </select>
+        <button class="btn btn-primary btn-sm" onclick="approveAll()">✓ Approve All Pending</button>
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>Customer</th><th>Product</th><th>Rating</th><th>Review</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="reviewsTableBody"><tr><td colspan="7" class="loading">Loading reviews...</td></tr></tbody>
+        </table>
+      </div>
+      <div class="pagination"><span id="pageInfo"></span><button class="page-btn" id="prevBtn" onclick="prevPage()">‹</button><div id="pageNums" style="display:flex;gap:.25rem"></div><button class="page-btn" id="nextBtn" onclick="nextPage()">›</button></div>
+    </div>
+  </div>
+</main>
+
+<script type="module">
+import { supabase, requireAdmin, adminSignOut, formatDate, showToast } from './js/admin.js';
+window.adminSignOut = adminSignOut;
+
+let allReviews=[], filtered=[], page=1;
+const PER_PAGE=15;
+
+async function init() {
+  const auth = await requireAdmin();
+  if (!auth) return;
+  const name=`${auth.profile.first_name||''} ${auth.profile.last_name||''}`.trim()||'Admin';
+  document.getElementById('adminNameEl').textContent=name;
+  document.getElementById('adminAvatarEl').textContent=name[0].toUpperCase();
+  loadReviews();
+}
+
+async function loadReviews() {
+  const { data } = await supabase.from('reviews').select('*,profiles(first_name,last_name),products(name,slug)').order('created_at',{ascending:false});
+  allReviews = data||[];
+  const pending = allReviews.filter(r=>!r.is_approved).length;
+  document.getElementById('pendingCount').textContent = pending > 0 ? `${pending} pending approval` : 'All reviews approved';
+  filtered = allReviews;
+  render();
+}
+
+window.filterReviews = () => {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const ap = document.getElementById('approvalFilter').value;
+  const rt = document.getElementById('ratingFilter').value;
+  filtered = allReviews.filter(r => {
+    const name = `${r.profiles?.first_name||''} ${r.profiles?.last_name||''}`.toLowerCase();
+    const matchQ = !q || name.includes(q) || r.comment?.toLowerCase().includes(q) || r.products?.name?.toLowerCase().includes(q);
+    const matchA = ap==='' || r.is_approved===(ap==='true');
+    const matchR = !rt || r.rating===parseInt(rt);
+    return matchQ && matchA && matchR;
+  });
+  page=1; render();
+};
+
+function render() {
+  const start=(page-1)*PER_PAGE,end=start+PER_PAGE;
+  const slice=filtered.slice(start,end);
+  const tbody=document.getElementById('reviewsTableBody');
+  if(!slice.length){tbody.innerHTML='<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">⭐</div><h3>No reviews found</h3></div></td></tr>';return;}
+  tbody.innerHTML=slice.map(r=>{
+    const name=r.profiles?`${r.profiles.first_name||''} ${r.profiles.last_name||''}`.trim()||'Anonymous':'Anonymous';
+    const stars='★'.repeat(r.rating)+'☆'.repeat(5-r.rating);
+    return `<tr style="${!r.is_approved?'background:#fffbeb':''}">
+      <td class="cell-bold">${name}</td>
+      <td>${r.products?`<a href="../pages/product.html?slug=${r.products.slug}" target="_blank">${r.products.name}</a>`:'—'}</td>
+      <td><span style="color:#f6ad55;letter-spacing:.1em">${stars}</span></td>
+      <td style="max-width:260px"><div style="font-size:.875rem;color:var(--text-medium);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:260px" title="${(r.comment||'').replace(/"/g,'&quot;')}">${r.title?`<strong>${r.title}</strong> — `:''}"${(r.comment||'').slice(0,80)}${r.comment?.length>80?'…':''}"</div></td>
+      <td class="text-sm">${formatDate(r.created_at)}</td>
+      <td>${r.is_approved?'<span class="badge badge-delivered">Approved</span>':'<span class="badge badge-pending">Pending</span>'}</td>
+      <td><div style="display:flex;gap:.35rem">
+        ${!r.is_approved?`<button class="btn btn-secondary btn-sm" onclick="approveReview('${r.id}')">✓ Approve</button>`:'<span style="font-size:.75rem;color:var(--green)">✓ Live</span>'}
+        <button class="btn btn-danger btn-sm" onclick="deleteReview('${r.id}')">✕</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+  const totalPages=Math.ceil(filtered.length/PER_PAGE);
+  document.getElementById('pageInfo').textContent=`${start+1}–${Math.min(end,filtered.length)} of ${filtered.length}`;
+  document.getElementById('prevBtn').disabled=page<=1;
+  document.getElementById('nextBtn').disabled=page>=totalPages;
+  document.getElementById('pageNums').innerHTML=Array.from({length:Math.min(totalPages,7)},(_,i)=>{const p=i+1;return`<button class="page-btn${p===page?' active':''}" onclick="goPage(${p})">${p}</button>`;}).join('');
+}
+
+window.goPage=(p)=>{page=p;render();};
+window.prevPage=()=>{if(page>1){page--;render();}};
+window.nextPage=()=>{if(page<Math.ceil(filtered.length/PER_PAGE)){page++;render();}};
+
+window.approveReview = async (id) => {
+  const {error}=await supabase.from('reviews').update({is_approved:true}).eq('id',id);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  showToast('Review approved!');
+  loadReviews();
+};
+
+window.approveAll = async () => {
+  const pending=allReviews.filter(r=>!r.is_approved);
+  if(!pending.length){showToast('No pending reviews','info');return;}
+  if(!confirm(`Approve all ${pending.length} pending reviews?`))return;
+  const {error}=await supabase.from('reviews').update({is_approved:true}).eq('is_approved',false);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  showToast(`${pending.length} reviews approved!`);
+  loadReviews();
+};
+
+window.deleteReview = async (id) => {
+  if(!confirm('Delete this review?'))return;
+  const {error}=await supabase.from('reviews').delete().eq('id',id);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  showToast('Review deleted');
+  loadReviews();
+};
+
+init();
+</script>
+</body>
+</html>

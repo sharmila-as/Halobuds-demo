@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact Us — Halo Buds</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Great+Vibes&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/main.css">
+<style>
+.page-hero { background:linear-gradient(135deg,var(--purple-deep),var(--purple-brand) 60%,#ec4899); padding:5rem 0; color:white; text-align:center; }
+.page-hero .script { font-family:'Great Vibes',cursive; font-size:3rem; display:block; margin-bottom:.5rem; opacity:.9; }
+.page-hero h1 { font-family:'Cormorant Garamond',serif; font-size:3.5rem; font-weight:300; margin-bottom:1rem; }
+.page-hero p { font-family:'Jost',sans-serif; font-size:1rem; opacity:.85; max-width:480px; margin:0 auto; line-height:1.7; }
+.contact-section { padding:5rem 0; }
+.contact-grid { display:grid; grid-template-columns:1fr 420px; gap:3rem; }
+.contact-form-card { background:white; border-radius:24px; border:1px solid var(--border); padding:2.5rem; }
+.contact-form-card h2 { font-family:'Cormorant Garamond',serif; font-size:2rem; font-weight:400; color:var(--text-dark); margin-bottom:.5rem; }
+.contact-form-card p { font-family:'Jost',sans-serif; font-size:.9rem; color:var(--text-light); margin-bottom:2rem; }
+.form-group { margin-bottom:1.1rem; }
+.form-group label { display:block; font-family:'Jost',sans-serif; font-size:.78rem; font-weight:500; letter-spacing:.08em; text-transform:uppercase; color:var(--text-medium); margin-bottom:.4rem; }
+.form-group input, .form-group select, .form-group textarea { width:100%; padding:.875rem 1rem; border:1.5px solid var(--border); border-radius:10px; font-family:'Jost',sans-serif; font-size:.9rem; color:var(--text-dark); background:white; transition:all .25s; outline:none; box-sizing:border-box; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color:var(--purple-brand); box-shadow:0 0 0 3px rgba(107,63,160,.08); }
+.form-group textarea { resize:vertical; min-height:130px; }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+.btn-send { padding:1rem 2.5rem; background:var(--purple-brand); color:white; border:none; border-radius:12px; font-family:'Jost',sans-serif; font-size:.95rem; font-weight:500; cursor:pointer; transition:all .3s; width:100%; margin-top:.5rem; }
+.btn-send:hover { background:var(--purple-deep); transform:translateY(-1px); box-shadow:0 8px 25px rgba(107,63,160,.3); }
+.btn-send:disabled { opacity:.6; cursor:not-allowed; transform:none; }
+.form-alert { padding:.875rem 1rem; border-radius:10px; font-family:'Jost',sans-serif; font-size:.875rem; margin-bottom:1.25rem; display:none; }
+.form-alert.success { background:#f0fdf4; border:1px solid #bbf7d0; color:#166534; display:block; }
+.form-alert.error { background:#fff5f5; border:1px solid #fed7d7; color:#c53030; display:block; }
+/* Sidebar */
+.contact-info { display:flex; flex-direction:column; gap:1.5rem; }
+.info-card { background:white; border-radius:20px; border:1px solid var(--border); padding:1.75rem; }
+.info-card h3 { font-family:'Cormorant Garamond',serif; font-size:1.3rem; font-weight:400; color:var(--text-dark); margin-bottom:1.25rem; }
+.contact-method { display:flex; align-items:center; gap:1rem; padding:.75rem 0; border-bottom:1px solid var(--border-light); }
+.contact-method:last-child { border-bottom:none; }
+.contact-icon { width:42px; height:42px; border-radius:50%; background:linear-gradient(135deg,var(--purple-pale),#fce7f3); display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0; }
+.contact-method-text .label { font-family:'Jost',sans-serif; font-size:.75rem; font-weight:500; letter-spacing:.06em; text-transform:uppercase; color:var(--text-light); }
+.contact-method-text .value { font-family:'Jost',sans-serif; font-size:.9rem; color:var(--text-dark); font-weight:500; }
+.contact-method-text a { color:var(--purple-brand); text-decoration:none; }
+.contact-method-text a:hover { text-decoration:underline; }
+.hours-card { background:linear-gradient(135deg,var(--purple-pale),#fce7f3); border-radius:20px; padding:1.75rem; }
+.hours-card h3 { font-family:'Cormorant Garamond',serif; font-size:1.3rem; font-weight:400; color:var(--text-dark); margin-bottom:1rem; }
+.hours-row { display:flex; justify-content:space-between; font-family:'Jost',sans-serif; font-size:.875rem; padding:.4rem 0; border-bottom:1px solid rgba(107,63,160,.1); }
+.hours-row:last-child { border-bottom:none; }
+.hours-row .day { color:var(--text-medium); }
+.hours-row .time { color:var(--text-dark); font-weight:500; }
+.wa-card { background:linear-gradient(135deg,#dcfce7,#bbf7d0); border-radius:20px; padding:1.75rem; }
+.wa-card h3 { font-family:'Cormorant Garamond',serif; font-size:1.3rem; font-weight:400; color:#14532d; margin-bottom:.5rem; }
+.wa-card p { font-family:'Jost',sans-serif; font-size:.875rem; color:#166534; margin-bottom:1rem; line-height:1.6; }
+.btn-wa { display:flex; align-items:center; justify-content:center; gap:.6rem; background:#25d366; color:white; padding:.875rem; border-radius:12px; font-family:'Jost',sans-serif; font-size:.9rem; font-weight:600; text-decoration:none; transition:all .25s; }
+.btn-wa:hover { background:#22c55e; transform:translateY(-1px); box-shadow:0 8px 25px rgba(37,211,102,.3); }
+@media(max-width:900px) {
+  .contact-grid { grid-template-columns:1fr; }
+  .form-row { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+<header class="site-header" id="siteHeader">
+  <div class="container">
+    <div class="header-inner">
+      <a href="../index.html" class="logo"><div class="logo-mark">HB</div><div class="logo-text"><span class="logo-name">Halo Buds</span><span class="logo-tagline">Fully Handmade & Customized</span></div></a>
+      <nav class="main-nav"><a href="../index.html">Home</a><a href="shop.html">Shop</a><a href="custom-order.html">Custom Order</a><a href="about.html">About</a><a href="contact.html" class="active">Contact</a></nav>
+      <div class="header-actions">
+        <a href="cart.html" class="icon-btn"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><span class="cart-badge" id="cartCount">0</span></a>
+        <a href="account.html" class="icon-btn"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="page-hero">
+  <div class="container">
+    <span class="script">Say hello</span>
+    <h1>Contact Us</h1>
+    <p>Have a question, need help with an order, or want to discuss a custom creation? We'd love to hear from you!</p>
+  </div>
+</div>
+
+<div class="contact-section">
+  <div class="container">
+    <div class="contact-grid">
+      <!-- Form -->
+      <div class="contact-form-card">
+        <h2>Send us a message</h2>
+        <p>We usually reply within 2–4 hours during business hours.</p>
+        <div id="formAlert" class="form-alert"></div>
+        <form id="contactForm" novalidate>
+          <div class="form-row">
+            <div class="form-group"><label>Your Name *</label><input type="text" id="cName" placeholder="Priya Sharma"></div>
+            <div class="form-group"><label>Phone</label><input type="tel" id="cPhone" placeholder="+91 98765 43210"></div>
+          </div>
+          <div class="form-group"><label>Email *</label><input type="email" id="cEmail" placeholder="you@email.com"></div>
+          <div class="form-group">
+            <label>Subject *</label>
+            <select id="cSubject">
+              <option value="">Select a topic</option>
+              <option value="order_query">Order Query</option>
+              <option value="custom_order">Custom Order</option>
+              <option value="product_info">Product Information</option>
+              <option value="return_exchange">Return / Exchange</option>
+              <option value="payment_issue">Payment Issue</option>
+              <option value="general">General Enquiry</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Order Number <span style="font-weight:400;text-transform:none;font-size:.75rem;color:var(--text-light)">(if applicable)</span></label><input type="text" id="cOrderNum" placeholder="e.g. HB2025001"></div>
+          <div class="form-group"><label>Message *</label><textarea id="cMessage" placeholder="Tell us how we can help you..."></textarea></div>
+          <button type="submit" class="btn-send" id="sendBtn">Send Message</button>
+        </form>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="contact-info">
+        <div class="info-card">
+          <h3>Get in Touch</h3>
+          <div class="contact-method">
+            <div class="contact-icon">📧</div>
+            <div class="contact-method-text"><div class="label">Email</div><div class="value"><a href="mailto:hello@halobuds.in">hello@halobuds.in</a></div></div>
+          </div>
+          <div class="contact-method">
+            <div class="contact-icon">📱</div>
+            <div class="contact-method-text"><div class="label">Phone / WhatsApp</div><div class="value"><a href="tel:+919876543210">+91 98765 43210</a></div></div>
+          </div>
+          <div class="contact-method">
+            <div class="contact-icon">📍</div>
+            <div class="contact-method-text"><div class="label">Based In</div><div class="value">Chennai, Tamil Nadu, India</div></div>
+          </div>
+          <div class="contact-method">
+            <div class="contact-icon">📦</div>
+            <div class="contact-method-text"><div class="label">Ships To</div><div class="value">All across India</div></div>
+          </div>
+        </div>
+
+        <div class="hours-card">
+          <h3>🕐 Business Hours</h3>
+          <div class="hours-row"><span class="day">Mon – Fri</span><span class="time">9:00 AM – 7:00 PM</span></div>
+          <div class="hours-row"><span class="day">Saturday</span><span class="time">10:00 AM – 5:00 PM</span></div>
+          <div class="hours-row"><span class="day">Sunday</span><span class="time">Closed</span></div>
+          <p style="font-family:'Jost',sans-serif;font-size:.78rem;color:var(--text-light);margin-top:.75rem;">All times in IST. We try to respond to WhatsApp messages even outside these hours!</p>
+        </div>
+
+        <div class="wa-card">
+          <h3>💬 Chat Instantly</h3>
+          <p>For fastest responses, reach us on WhatsApp. We typically reply within 30 minutes!</p>
+          <a href="https://wa.me/919876543210?text=Hi%20Halo%20Buds!%20I%20have%20a%20question." target="_blank" class="btn-wa">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+            Chat on WhatsApp
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="container"><div class="footer-bottom"><p>© 2025 Halo Buds. All rights reserved. Made with 💜 in India.</p></div></div>
+</footer>
+
+<script type="module">
+import { Auth, Cart } from '../js/config.js';
+const { supabase } = Auth;
+
+const items = await Cart.get();
+document.getElementById('cartCount').textContent = items.reduce((s,i)=>s+i.quantity,0);
+window.addEventListener('scroll',()=>{ document.getElementById('siteHeader').classList.toggle('scrolled',window.scrollY>50); });
+
+document.getElementById('contactForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const alertEl = document.getElementById('formAlert');
+  alertEl.className = 'form-alert';
+
+  const name = document.getElementById('cName').value.trim();
+  const email = document.getElementById('cEmail').value.trim();
+  const subject = document.getElementById('cSubject').value;
+  const message = document.getElementById('cMessage').value.trim();
+
+  if (!name || !email || !subject || !message) {
+    alertEl.className = 'form-alert error';
+    alertEl.textContent = 'Please fill in all required fields.';
+    return;
+  }
+
+  const btn = document.getElementById('sendBtn');
+  btn.disabled = true; btn.textContent = 'Sending...';
+
+  try {
+    const { data:{user} } = await supabase.auth.getUser();
+    const { error } = await supabase.from('contact_messages').insert({
+      user_id: user?.id || null,
+      name, email,
+      phone: document.getElementById('cPhone').value.trim() || null,
+      subject, message,
+      order_number: document.getElementById('cOrderNum').value.trim() || null,
+      status: 'unread'
+    });
+    if (error) throw error;
+    alertEl.className = 'form-alert success';
+    alertEl.textContent = '✓ Message sent! We\'ll get back to you within 2–4 hours. Thank you!';
+    document.getElementById('contactForm').reset();
+  } catch (err) {
+    alertEl.className = 'form-alert error';
+    alertEl.textContent = 'Something went wrong. Please try WhatsApp or email us directly.';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Send Message';
+  }
+});
+</script>
+</body>
+</html>

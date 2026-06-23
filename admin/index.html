@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Halo Buds Admin</title>
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+<!-- Sidebar -->
+<aside class="admin-sidebar" id="adminSidebar">
+  <div class="sidebar-logo">
+    <a href="index.html" class="brand">
+      <div class="logo-mark-sm">HB</div>
+      <div><div class="sidebar-brand-text">Halo Buds</div><div class="sidebar-brand-sub">Admin Panel</div></div>
+    </a>
+  </div>
+  <nav class="admin-nav">
+    <div class="nav-section">Main</div>
+    <a href="index.html" class="active"><span class="nav-icon">📊</span> Dashboard</a>
+    <a href="orders.html"><span class="nav-icon">📦</span> Orders</a>
+    <div class="nav-section">Catalogue</div>
+    <a href="products.html"><span class="nav-icon">🛍️</span> Products</a>
+    <a href="categories.html"><span class="nav-icon">🗂️</span> Categories</a>
+    <a href="banners.html"><span class="nav-icon">🖼️</span> Banners</a>
+    <div class="nav-section">Customers</div>
+    <a href="customers.html"><span class="nav-icon">👥</span> Customers</a>
+    <a href="reviews.html"><span class="nav-icon">⭐</span> Reviews</a>
+    <div class="nav-section">Support</div>
+    <a href="messages.html"><span class="nav-icon">💬</span> Messages</a>
+    <a href="custom-requests.html"><span class="nav-icon">✏️</span> Custom Requests</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="admin-user">
+      <div class="admin-avatar" id="adminAvatarEl">A</div>
+      <div class="admin-user-info"><div class="admin-user-name" id="adminNameEl">Admin</div><div class="admin-user-role">Administrator</div></div>
+    </div>
+    <a href="../index.html" class="view-site-link" target="_blank">🌐 View Site ↗</a>
+    <button class="btn-logout" onclick="adminSignOut()">🚪 Sign Out</button>
+  </div>
+</aside>
+
+<main class="admin-main">
+  <div class="admin-topbar">
+    <div class="topbar-title">Dashboard</div>
+    <div class="topbar-actions">
+      <span id="greeting" style="font-size:.875rem;color:var(--text-light)"></span>
+      <a href="orders.html" class="btn btn-primary btn-sm">+ New Order</a>
+    </div>
+  </div>
+
+  <div class="admin-content">
+    <!-- Stats -->
+    <div class="stats-grid" id="statsGrid">
+      <div class="stat-card"><div class="stat-icon stat-purple">💰</div><div class="s-label">Total Revenue</div><div class="s-value" id="statRevenue">—</div><div class="s-change up" id="statRevChange"></div></div>
+      <div class="stat-card"><div class="stat-icon stat-pink">📦</div><div class="s-label">Total Orders</div><div class="s-value" id="statOrders">—</div><div class="s-change" id="statOrdChange"></div></div>
+      <div class="stat-card"><div class="stat-icon stat-green">👥</div><div class="s-label">Customers</div><div class="s-value" id="statCustomers">—</div><div class="s-change up" id="statCustChange"></div></div>
+      <div class="stat-card"><div class="stat-icon stat-blue">🛍️</div><div class="s-label">Products</div><div class="s-value" id="statProducts">—</div><div class="s-change"></div></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 360px;gap:1.5rem;margin-bottom:1.5rem">
+      <!-- Recent Orders -->
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <h3>Recent Orders</h3>
+          <a href="orders.html" class="btn btn-secondary btn-sm">View All</a>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table" id="recentOrdersTable">
+            <thead><tr><th>Order</th><th>Customer</th><th>Amount</th><th>Status</th><th>Date</th><th></th></tr></thead>
+            <tbody id="recentOrdersBody"><tr><td colspan="6" class="loading">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Quick Stats panel -->
+      <div style="display:flex;flex-direction:column;gap:1.5rem">
+        <!-- Order breakdown -->
+        <div class="admin-card">
+          <div class="admin-card-header"><h3>Order Status</h3></div>
+          <div style="padding:1.25rem" id="orderBreakdown"><div class="loading">Loading...</div></div>
+        </div>
+        <!-- Low stock -->
+        <div class="admin-card">
+          <div class="admin-card-header"><h3>⚠️ Low Stock</h3><a href="products.html" class="btn btn-secondary btn-sm">Manage</a></div>
+          <div style="padding:1.25rem" id="lowStockList"><div class="loading">Loading...</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pending Reviews & Custom Requests -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
+      <div class="admin-card">
+        <div class="admin-card-header"><h3>Pending Reviews</h3><a href="reviews.html" class="btn btn-secondary btn-sm">View All</a></div>
+        <div id="pendingReviews" style="padding:1.25rem"><div class="loading">Loading...</div></div>
+      </div>
+      <div class="admin-card">
+        <div class="admin-card-header"><h3>Custom Order Requests</h3><a href="custom-requests.html" class="btn btn-secondary btn-sm">View All</a></div>
+        <div id="customRequests" style="padding:1.25rem"><div class="loading">Loading...</div></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script type="module">
+import { supabase, requireAdmin, setActiveSidebarLink, formatPrice, formatDate, getStatusBadge, adminSignOut } from './js/admin.js';
+window.adminSignOut = adminSignOut;
+
+async function init() {
+  const auth = await requireAdmin();
+  if (!auth) return;
+
+  const { profile } = auth;
+  const name = `${profile.first_name||''} ${profile.last_name||''}`.trim() || 'Admin';
+  document.getElementById('adminNameEl').textContent = name;
+  document.getElementById('adminAvatarEl').textContent = name[0].toUpperCase();
+  const hr = new Date().getHours();
+  document.getElementById('greeting').textContent = hr < 12 ? 'Good morning! ☀️' : hr < 17 ? 'Good afternoon! 🌤️' : 'Good evening! 🌙';
+
+  setActiveSidebarLink();
+  loadStats();
+  loadRecentOrders();
+  loadOrderBreakdown();
+  loadLowStock();
+  loadPendingReviews();
+  loadCustomRequests();
+}
+
+async function loadStats() {
+  const [{ count: orderCount }, { data: revenue }, { count: customerCount }, { count: productCount }] = await Promise.all([
+    supabase.from('orders').select('*', { count:'exact', head:true }).neq('status','cancelled'),
+    supabase.from('orders').select('total_amount').eq('payment_status','paid'),
+    supabase.from('profiles').select('*', { count:'exact', head:true }),
+    supabase.from('products').select('*', { count:'exact', head:true }).eq('is_active',true),
+  ]);
+  const totalRevenue = (revenue||[]).reduce((s,o)=>s+o.total_amount,0);
+  document.getElementById('statRevenue').textContent = formatPrice(totalRevenue);
+  document.getElementById('statOrders').textContent = orderCount||0;
+  document.getElementById('statCustomers').textContent = customerCount||0;
+  document.getElementById('statProducts').textContent = productCount||0;
+  document.getElementById('statRevChange').textContent = '↑ Revenue from paid orders';
+  document.getElementById('statRevChange').className = 's-change up';
+}
+
+async function loadRecentOrders() {
+  const { data } = await supabase.from('orders').select('id,order_number,total_amount,status,created_at,profiles(first_name,last_name)').order('created_at',{ascending:false}).limit(8);
+  const tbody = document.getElementById('recentOrdersBody');
+  if (!data?.length) { tbody.innerHTML = '<tr><td colspan="6" class="loading">No orders yet</td></tr>'; return; }
+  tbody.innerHTML = data.map(o => {
+    const name = o.profiles ? `${o.profiles.first_name||''} ${o.profiles.last_name||''}`.trim() || '—' : 'Guest';
+    return `<tr>
+      <td class="cell-bold"><a href="orders.html?id=${o.id}">#${o.order_number}</a></td>
+      <td>${name}</td>
+      <td>${formatPrice(o.total_amount)}</td>
+      <td>${getStatusBadge(o.status)}</td>
+      <td class="text-sm">${formatDate(o.created_at)}</td>
+      <td><a href="orders.html?id=${o.id}" class="btn btn-secondary btn-sm">View</a></td>
+    </tr>`;
+  }).join('');
+}
+
+async function loadOrderBreakdown() {
+  const { data } = await supabase.from('orders').select('status');
+  const counts = {};
+  (data||[]).forEach(o => { counts[o.status] = (counts[o.status]||0)+1; });
+  const statuses = ['pending','confirmed','processing','shipped','delivered','cancelled'];
+  const labels = { pending:'Pending',confirmed:'Confirmed',processing:'Processing',shipped:'Shipped',delivered:'Delivered',cancelled:'Cancelled' };
+  const total = (data||[]).length;
+  document.getElementById('orderBreakdown').innerHTML = statuses.map(s => {
+    const n = counts[s]||0;
+    const pct = total ? Math.round(n/total*100) : 0;
+    return `<div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.625rem">
+      <div style="width:80px;font-size:.78rem;color:var(--text-medium)">${labels[s]}</div>
+      <div style="flex:1;height:6px;background:#f0f0f0;border-radius:3px;overflow:hidden"><div style="width:${pct}%;height:100%;background:var(--purple-brand);border-radius:3px"></div></div>
+      <div style="width:28px;font-size:.78rem;font-weight:600;color:var(--text-dark);text-align:right">${n}</div>
+    </div>`;
+  }).join('');
+}
+
+async function loadLowStock() {
+  const { data } = await supabase.from('products').select('id,name,stock_quantity').eq('track_inventory',true).lte('stock_quantity',5).order('stock_quantity').limit(5);
+  const el = document.getElementById('lowStockList');
+  if (!data?.length) { el.innerHTML = '<div style="font-size:.875rem;color:var(--text-light);text-align:center;padding:.5rem">✅ All products well stocked!</div>'; return; }
+  el.innerHTML = data.map(p => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:.5rem 0;border-bottom:1px solid var(--border);font-size:.85rem">
+      <span style="color:var(--text-dark);font-weight:500">${p.name.slice(0,28)}${p.name.length>28?'…':''}</span>
+      <span style="color:${p.stock_quantity<=2?'var(--red)':'var(--orange)'};font-weight:600">${p.stock_quantity} left</span>
+    </div>`).join('');
+}
+
+async function loadPendingReviews() {
+  const { data } = await supabase.from('reviews').select('id,rating,comment,created_at,profiles(first_name),products(name)').eq('is_approved',false).order('created_at',{ascending:false}).limit(5);
+  const el = document.getElementById('pendingReviews');
+  if (!data?.length) { el.innerHTML = '<div style="font-size:.875rem;color:var(--text-light);text-align:center;padding:.5rem">No pending reviews</div>'; return; }
+  el.innerHTML = data.map(r => `
+    <div style="padding:.75rem 0;border-bottom:1px solid var(--border)">
+      <div style="display:flex;justify-content:space-between;margin-bottom:.25rem">
+        <span style="font-size:.85rem;font-weight:500;color:var(--text-dark)">${r.profiles?.first_name||'Customer'}</span>
+        <span style="color:#f6ad55;font-size:.8rem">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</span>
+      </div>
+      <div style="font-size:.78rem;color:var(--text-light);margin-bottom:.4rem">${r.products?.name||''}</div>
+      <div style="font-size:.82rem;color:var(--text-medium)">"${(r.comment||'').slice(0,80)}${r.comment?.length>80?'…':''}"</div>
+    </div>`).join('') + `<div style="margin-top:.75rem"><a href="reviews.html" class="btn btn-secondary btn-sm" style="width:100%;justify-content:center">Review All</a></div>`;
+}
+
+async function loadCustomRequests() {
+  const { data } = await supabase.from('custom_order_requests').select('id,customer_name,product_type,created_at,status').eq('status','pending').order('created_at',{ascending:false}).limit(5);
+  const el = document.getElementById('customRequests');
+  if (!data?.length) { el.innerHTML = '<div style="font-size:.875rem;color:var(--text-light);text-align:center;padding:.5rem">No pending requests</div>'; return; }
+  el.innerHTML = data.map(r => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:.75rem 0;border-bottom:1px solid var(--border)">
+      <div>
+        <div style="font-size:.85rem;font-weight:500;color:var(--text-dark)">${r.customer_name}</div>
+        <div style="font-size:.78rem;color:var(--text-light);margin-top:.15rem">${r.product_type?.replace(/_/g,' ')||''} · ${formatDate(r.created_at)}</div>
+      </div>
+      <a href="custom-requests.html" class="btn btn-secondary btn-sm">View</a>
+    </div>`).join('') + `<div style="margin-top:.75rem"><a href="custom-requests.html" class="btn btn-secondary btn-sm" style="width:100%;justify-content:center">View All</a></div>`;
+}
+
+init();
+</script>
+</body>
+</html>
